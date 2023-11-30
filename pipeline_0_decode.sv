@@ -10,7 +10,7 @@ module pipeline_0_decode (
     output [21:0] control_out,
     output reg [2:0] num_Rm,//num_Rm
     output reg [2:0] num_Rn,//num_Rn
-    output reg [2:0] num_Rram,// this is for Rd in STR
+    output reg [2:0] num_Rd,// this is for Rd in STR
     output reg [15:0] sximm
 );
     wire [2:0] opcode;
@@ -32,7 +32,7 @@ module pipeline_0_decode (
         write=0;
         writenum=3'b0;
 
-        num_Rram=3'b0;
+        num_Rd=3'b0;
         num_Rm=3'b0;
         num_Rn=3'b0;
         sximm=16'b0;
@@ -92,7 +92,7 @@ module pipeline_0_decode (
                 bsel=1'b1;
                 num_Rm=IR_in[10:8];
                 sximm={{12{IR_in[4]}},IR_in[3:0]};
-                num_Rram=IR_in[7:5];
+                num_Rd=IR_in[7:5];
             end
 
             3'b011:begin //LDR
