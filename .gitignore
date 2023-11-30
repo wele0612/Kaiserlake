@@ -1,0 +1,136 @@
+# Working with Altera Quartus II (Q2) and do proper versioning is not that easy
+# but if you follow some rules it can be accomplished. :)
+# This file should be placed into the main directory where the .qpf file is
+# found. Generally Q2 throws all entities and so on in the main directory, but
+# you can place all stuff also in separate folders. This approach is followed
+# here. So when you create a new design create one or more folders where your
+# entities will be located and put a .gitignore in there that overrides the
+# ignores of this file, e.g. one single rule stating "!*" which allows now all
+# type of files. When you add a MegaFunction or another entity to your design,
+# simply add it to one of your private folders and Q2 will be happy and manage
+# everything quite good. When you want to do versioning of your generated
+# SOF/POF files, you can do this by redirecting the generated output to an own
+# folder. To do this go to:
+# "Assignments"
+# -> "Settings
+# -> "Compilation Process Settings"
+# -> "Save project output files in specified directory"
+# Now you can either place a .gitignore in the directory and allow the following
+# list of types:
+# !*.sof
+# !*.pof
+# or you create an own submodule in the folder to keep binary files out of your
+# design.
+
+# Need to keep all HDL files
+# *.vhd
+# *.v
+
+# ignore Quartus II generated files
+*_generation_script*
+*_inst.vhd
+*.bak
+*.cmp
+*.done
+*.eqn
+*.hex
+*.html
+*.jdi
+*.jpg
+# *.mif
+*.pin
+*.pof
+*.ptf.*
+*.qar
+*.qarlog
+*.qws
+*.rpt
+*.smsg
+*.sopc_builder
+*.summary
+*.tcl
+*.txt # Explicitly add any text files used
+*~
+*example*
+*sopc_*
+# *.sdc # I want those timing files
+
+# ignore Quartus II generated folders
+*/db/
+*/incremental_db/
+*/simulation/
+*/timing/
+*/testbench/
+*/*_sim/
+incremental_db/
+db/
+_output_files/
+PLLJ_PLLSPE_INFO.txt
+
+
+
+# ignore ModelSim generated files and directories (temp files and so on)
+[_@]*
+
+# ignore compilation output of ModelSim
+*.mti
+*.dat
+*.dbs
+*.psm
+*.bak
+*.cmp
+*.jpg
+*.html
+*.bsf
+
+# ignore simulation output of ModelSim
+wlf*
+*.wlf
+*.vstf
+*.ucdb
+cov*/
+transcript*
+sc_dpiheader.h
+vsim.dbg
+modelsim_projects/lab5_tb_regfile.cr.mti
+modelsim_projects/lab5_tb_regfile.mpf
+modelsim_projects/vsim.wlf
+modelsim_projects/work/_info
+modelsim_projects/work/_lib.qdb
+quartus_projects/db/lab5_quartus_test.cmp.rdb
+quartus_projects/db/lab5_quartus_test.db_info
+quartus_projects/db/lab5_quartus_test.hier_info
+quartus_projects/db/lab5_quartus_test.hif
+quartus_projects/db/lab5_quartus_test.map.bpm
+quartus_projects/db/lab5_quartus_test.map.cdb
+quartus_projects/db/lab5_quartus_test.map.hdb
+quartus_projects/db/lab5_quartus_test.map.qmsg
+quartus_projects/db/lab5_quartus_test.map.rdb
+quartus_projects/db/lab5_quartus_test.map_bb.cdb
+quartus_projects/db/lab5_quartus_test.map_bb.hdb
+quartus_projects/db/lab5_quartus_test.npp.qmsg
+quartus_projects/db/lab5_quartus_test.pre_map.hdb
+quartus_projects/db/lab5_quartus_test.rtlv.hdb
+quartus_projects/db/lab5_quartus_test.rtlv_sg.cdb
+quartus_projects/db/lab5_quartus_test.sgate.nvd
+quartus_projects/db/lab5_quartus_test_partition_pins.json
+quartus_projects/incremental_db/compiled_partitions/lab5_quartus_test.root_partition.map.cdb
+quartus_projects/incremental_db/compiled_partitions/lab5_quartus_test.root_partition.map.dpi
+quartus_projects/incremental_db/compiled_partitions/lab5_quartus_test.root_partition.map.hbdb.cdb
+quartus_projects/incremental_db/compiled_partitions/lab5_quartus_test.root_partition.map.hbdb.hdb
+quartus_projects/incremental_db/compiled_partitions/lab5_quartus_test.root_partition.map.hdb
+quartus_projects/lab5_quartus_test.qsf
+quartus_projects/lab5_quartus_test.qws
+quartus_projects/output_files/lab5_quartus_test.done
+quartus_projects/output_files/lab5_quartus_test.flow.rpt
+quartus_projects/output_files/lab5_quartus_test.map.rpt
+quartus_projects/output_files/lab5_quartus_test.map.summary
+.VSCodeCounter/2023-11-06_13-39-13/details.md
+.VSCodeCounter/2023-11-06_13-39-13/diff-details.md
+.VSCodeCounter/2023-11-06_13-39-13/diff.csv
+.VSCodeCounter/2023-11-06_13-39-13/diff.md
+.VSCodeCounter/2023-11-06_13-39-13/diff.txt
+.VSCodeCounter/2023-11-06_13-39-13/results.csv
+.VSCodeCounter/2023-11-06_13-39-13/results.json
+.VSCodeCounter/2023-11-06_13-39-13/results.md
+.VSCodeCounter/2023-11-06_13-39-13/results.txt
