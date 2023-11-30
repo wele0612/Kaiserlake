@@ -7,6 +7,7 @@
 
 主时钟: clk
 复位:   rst
+更新:   update
 
 寄存器号：num_Rx
 寄存器数据：data_Rx
