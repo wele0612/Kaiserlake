@@ -20,14 +20,14 @@ A号流水线第B级的重置：pA_rst[B]
 内存：
     地址maddr
     数据rdata,wdata
+    内存写使能write_mem
 
 Control Bus Width: 22bit
 
-    3       8       1       1       1       2       2       1           3
-    opcode  PC      asel    bsel    loads   ALUop   shift   write_reg   writenum
-    [21:19] [18:11] [10]    [9]     [8]     [7:6]   [5:4]   [3]         [2:0]
+    3       8       1       1       1       2       2       1       3
+    opcode  PC      asel    bsel    loads   ALUop   shift   write   writenum
+    [21:19] [18:11] [10]    [9]     [8]     [7:6]   [5:4]   [3]     [2:0]
 
 
 Testbench命名：
     tb_(模块名)_(描述)
-    
