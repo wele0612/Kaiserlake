@@ -127,7 +127,7 @@ module tb_pipeline_forward ();
         //ADD R2,R1,R3
         //AND R5,R2,R4,LSL#1
         p0_IR_in=16'b101_00_001_010_00_011;
-        p1_IR_in=16'b110_10_010_101_01_100;
+        p1_IR_in=16'b101_10_010_101_01_100;
         @(posedge clk);
         p0_IR_in=16'b0;
         p1_IR_in=16'b0;
