@@ -23,7 +23,7 @@ module data_forward (
     input m5_write_in,
     input m6_write_in,
 
-    output [15:0] data_forwarded_out
+    output reg [15:0] data_forwarded_out
 );
 
     reg [6:1] has_hazard;/*
