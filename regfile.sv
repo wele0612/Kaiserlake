@@ -22,9 +22,9 @@ module regfile (
     //input rst, //Consider this later
     input clk,
     
-    output [15:0] data_read0_out,
-    output [15:0] data_read1_out,
-    output [15:0] data_read2_out
+    output reg [15:0] data_read0_out,
+    output reg [15:0] data_read1_out,
+    output reg [15:0] data_read2_out
     /*output [15:0] data_read3_out,
     output [15:0] data_read4_out,
     output [15:0] data_read5_out
