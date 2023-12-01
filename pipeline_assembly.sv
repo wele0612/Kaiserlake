@@ -6,14 +6,9 @@ module pipeline_assembly (
     input [4:1] rst_p,//S0 need no reset
     input update_1in,
 
-    //to outside REGFILE
-    input [15:0] data_Rm_2in,
-    input [15:0] data_Rn_2in,
-    input [15:0] data_Rd_2in,
-
-    output [2:0] num_Rm_1out,
-    output [2:0] num_Rn_1out,
-    output [2:0] num_Rd_1out,
+    output [2:0] num_Rm_2out,
+    output [2:0] num_Rn_2out,
+    output [2:0] num_Rd_2out,
     //to forwarding
     output [15:0] result_2out_3in,
     output [15:0] result_3out_4in,
@@ -37,14 +32,36 @@ module pipeline_assembly (
 
     //loads
     output loads_1out,
-    output loads_2out
+    output loads_2out,
+
+    input [2:0] num_write0_in,
+    input [2:0] num_write1_in,
+    input write0_in,
+    input write1_in,
+    input [15:0] data_write0_in,
+    input [15:0] data_write1_in,
+
+    input [15:0] data_fRm_2in,
+    input [15:0] data_fRn_2in,
+    input [15:0] data_fRd_2in,
+
+    output [15:0] data_Rm_2out,
+    output [15:0] data_Rn_2out,
+    output [15:0] data_Rd_2out
 );
     wire [21:0] control_0out_1in,control_1out_2in,control_2out_3in,control_3out_4in;
     wire [2:0] num_Rm_0out_1in;
     wire [2:0] num_Rn_0out_1in;
     wire [2:0] num_Rd_0out_1in;
+    wire [2:0] num_Rm_1out_2in;
+    wire [2:0] num_Rn_1out_2in;
+    wire [2:0] num_Rd_1out_2in;
     wire [15:0] imm_0out_1in,imm_1out_2in;
     wire [15:0] data_Rd_2out_3in;
+
+    wire [15:0] data_Rm_1out_2in;
+    wire [15:0] data_Rn_1out_2in;
+    wire [15:0] data_Rd_1out_2in;
 
     wire highbit_shifted_Rm_2out_3in;
     wire highbit_data_Rn_2out_3in;
@@ -77,36 +94,60 @@ module pipeline_assembly (
         .update(update_1in),
 
         .control_out(control_1out_2in),
-        .num_Rm_out(num_Rm_1out),
-        .num_Rn_out(num_Rn_1out),
-        .num_Rd_out(num_Rd_1out),
+        .num_Rm_out(num_Rm_1out_2in),
+        .num_Rn_out(num_Rn_1out_2in),
+        .num_Rd_out(num_Rd_1out_2in),
         .imm_out(imm_1out_2in),
 
-        .loads(loads_1out)
+        .loads(loads_1out),
+
+        .data_Rm_out(data_Rm_1out_2in),
+        .data_Rn_out(data_Rn_1out_2in),
+        .data_Rd_out(data_Rd_1out_2in),
+
+        .num_write0_in(num_write0_in),
+        .num_write1_in(num_write1_in),
+        .write0_in(write0_in),
+        .write1_in(write1_in),
+        .data_write0_in(data_write0_in),
+        .data_write1_in(data_write1_in)
     );
 
     pipeline_2_execute S2_EXECUTE(
         .control_in(control_1out_2in),
-        .data_Rm_in(data_Rm_2in),
-        .data_Rn_in(data_Rn_2in),
-        .data_Rd_in(data_Rd_2in),
+        .data_Rm_in(data_Rm_1out_2in),
+        .data_Rn_in(data_Rn_1out_2in),
+        .data_Rd_in(data_Rd_1out_2in),
         .imm_in(imm_1out_2in),
+
+        .num_Rm_in(num_Rm_1out_2in),
+        .num_Rn_in(num_Rn_1out_2in),
+        .num_Rd_in(num_Rd_1out_2in),
+        .num_Rm_out(num_Rm_2out),
+        .num_Rn_out(num_Rn_2out),
+        .num_Rd_out(num_Rd_2out),
 
         .rst(rst|rst_p[2]),
         .clk(clk),
 
         .control_out(control_2out_3in),
-        .data_Rd_out(data_Rd_2out_3in),
         .result_out(result_2out_3in),
         .highbit_shifted_Rm_out(highbit_shifted_Rm_2out_3in),
         .highbit_data_Rn_out(highbit_data_Rn_2out_3in),
 
-        .loads(loads_2out)
+        .loads(loads_2out),
+
+        .data_Rm_out(data_Rm_2out),
+        .data_Rn_out(data_Rn_2out),
+        .data_Rd_out(data_Rd_2out),
+
+        .data_fRm_in(data_fRm_2in),
+        .data_fRn_in(data_fRn_2in),
     );
 
     pipeline_3_memwrt S3_MEMWRT(
         .control_in(control_2out_3in),
-        .data_Rd_in(data_Rd_2out_3in),
+        .data_Rd_in(data_fRd_2in),
         .highbit_shifted_Rm_in(highbit_shifted_Rm_2out_3in),
         .highbit_data_Rn_in(highbit_data_Rn_2out_3in),
         .result_in(result_2out_3in),
