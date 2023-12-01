@@ -34,7 +34,6 @@ module pipeline_assembly (
     //loads
     output loads_1out,
     output loads_2out
-        
 );
     wire [21:0] control_0out_1in,control_1out_2in,control_2out_3in,control_3out_4in;
     wire [2:0] num_Rm_0out_1in;

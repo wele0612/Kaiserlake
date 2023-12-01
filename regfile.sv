@@ -4,7 +4,6 @@ Currently 2-write 3-read mode
 module regfile (
     input [2:0] num_read0_in,
     input [2:0] num_read1_in,
-    
     input [2:0] num_read2_in,
     /*input [2:0] num_read3_in,
     input [2:0] num_read4_in,
