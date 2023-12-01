@@ -1,8 +1,5 @@
 module pipeline_2_execute (
     input [21:0] control_in,
-    input [2:0] num_Rm_in,
-    input [2:0] num_Rn_in,
-    input [2:0] num_Rd_in,
     input [15:0] data_Rm_in,
     input [15:0] data_Rn_in,
     input [15:0] data_Rd_in,
@@ -12,9 +9,6 @@ module pipeline_2_execute (
     input clk,
 
     output [21:0] control_out,
-    output [2:0] num_Rm_out,
-    output [2:0] num_Rn_out,
-    output [2:0] num_Rd_out,
     output [15:0] data_Rd_out,
     output [15:0] result_out,
     output highbit_shifted_Rm_out,
@@ -24,9 +18,6 @@ module pipeline_2_execute (
 );
     wire [15:0] data_Rm,data_Rn,imm;
     vDFF #22 pREG_control (clk,rst,control_in,control_out);
-    vDFF #3 pREG_num_Rm (clk,rst,num_Rm_in,num_Rm_out);
-    vDFF #3 pREG_num_Rn (clk,rst,num_Rn_in,num_Rn_out);
-    vDFF #3 pREG_num_Rd (clk,rst,num_Rd_in,num_Rd_out);
     vDFF #16 pREG_data_Rm (clk,rst,data_Rm_in,data_Rm);
     vDFF #16 pREG_data_Rn (clk,rst,data_Rn_in,data_Rn);
     vDFF #16 pREG_data_Rd (clk,rst,data_Rd_in,data_Rd_out);
