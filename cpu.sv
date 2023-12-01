@@ -32,6 +32,9 @@ module cpu (
     wire [2:0] p0_writenum_out;
     wire p0_write_out;
 
+    wire [2:0] p0_writenum_2out,p0_writenum_3out;
+    wire p0_write_2out,p0_write_3out;
+
     //To BGU
     wire p0_N,p0_V,p0_Z;
     wire p0_loads_1out,p0_loads_2out;
@@ -48,11 +51,15 @@ module cpu (
     wire [2:0] p1_writenum_out;
     wire p1_write_out;
 
+    wire [2:0] p1_writenum_2out,p1_writenum_3out;
+    wire p1_write_2out,p1_write_3out;
+
     //To BGU
     wire p1_N,p1_V,p1_Z;
     wire p1_loads_1out,p1_loads_2out;
     //---------------------------------------------
 
+    /*
     //when forwarding is not ready
     assign p0_data_Rm_2in=p0_data_Rm_regout;
     assign p0_data_Rn_2in=p0_data_Rn_regout;
@@ -61,6 +68,178 @@ module cpu (
     assign p1_data_Rm_2in=p1_data_Rm_regout;
     assign p1_data_Rn_2in=p1_data_Rn_regout;
     assign p1_data_Rd_2in=p1_data_Rd_regout;
+    */
+    
+    data_forward p0_data_Rm_forward(
+        .data_reg_in(p0_data_Rm_regout),
+        .num_reg_in(p0_num_Rm_1out),
+
+        .data_m1_in(p1_result_2out_3in),
+        .data_m2_in(p0_result_2out_3in),
+        .data_m3_in(p1_result_3out_4in),
+        .data_m4_in(p0_result_3out_4in),
+        .data_m5_in(p1_writeback_data_out),
+        .data_m6_in(p0_writeback_data_out),
+
+        .num_m1_in(p1_writenum_2out),
+        .num_m2_in(p0_writenum_2out),
+        .num_m3_in(p1_writenum_3out),
+        .num_m4_in(p0_writenum_3out),
+        .num_m5_in(p1_writenum_out),
+        .num_m6_in(p0_writenum_out),
+
+        .m1_write_in(p1_write_2out),
+        .m2_write_in(p0_write_2out),
+        .m3_write_in(p1_write_3out),
+        .m4_write_in(p0_write_3out),
+        .m5_write_in(p1_write_out),
+        .m6_write_in(p0_write_out),
+
+        .data_forwarded_out(p0_data_Rm_2in)
+    );
+
+    data_forward p0_data_Rn_forward(
+        .data_reg_in(p0_data_Rn_regout),
+        .num_reg_in(p0_num_Rn_1out),
+
+        .data_m1_in(p1_result_2out_3in),
+        .data_m2_in(p0_result_2out_3in),
+        .data_m3_in(p1_result_3out_4in),
+        .data_m4_in(p0_result_3out_4in),
+        .data_m5_in(p1_writeback_data_out),
+        .data_m6_in(p0_writeback_data_out),
+
+        .num_m1_in(p1_writenum_2out),
+        .num_m2_in(p0_writenum_2out),
+        .num_m3_in(p1_writenum_3out),
+        .num_m4_in(p0_writenum_3out),
+        .num_m5_in(p1_writenum_out),
+        .num_m6_in(p0_writenum_out),
+
+        .m1_write_in(p1_write_2out),
+        .m2_write_in(p0_write_2out),
+        .m3_write_in(p1_write_3out),
+        .m4_write_in(p0_write_3out),
+        .m5_write_in(p1_write_out),
+        .m6_write_in(p0_write_out),
+
+        .data_forwarded_out(p0_data_Rn_2in)
+    );
+
+    data_forward p0_data_Rd_forward(
+        .data_reg_in(p0_data_Rd_regout),
+        .num_reg_in(p0_num_Rd_1out),
+
+        .data_m1_in(p1_result_2out_3in),
+        .data_m2_in(p0_result_2out_3in),
+        .data_m3_in(p1_result_3out_4in),
+        .data_m4_in(p0_result_3out_4in),
+        .data_m5_in(p1_writeback_data_out),
+        .data_m6_in(p0_writeback_data_out),
+
+        .num_m1_in(p1_writenum_2out),
+        .num_m2_in(p0_writenum_2out),
+        .num_m3_in(p1_writenum_3out),
+        .num_m4_in(p0_writenum_3out),
+        .num_m5_in(p1_writenum_out),
+        .num_m6_in(p0_writenum_out),
+
+        .m1_write_in(p1_write_2out),
+        .m2_write_in(p0_write_2out),
+        .m3_write_in(p1_write_3out),
+        .m4_write_in(p0_write_3out),
+        .m5_write_in(p1_write_out),
+        .m6_write_in(p0_write_out),
+
+        .data_forwarded_out(p0_data_Rd_2in)
+    );
+
+    //pipeline 1 forward
+
+    data_forward p1_data_Rm_forward(
+        .data_reg_in(p1_data_Rm_regout),
+        .num_reg_in(p1_num_Rm_1out),
+
+        .data_m1_in(p1_result_2out_3in),
+        .data_m2_in(p0_result_2out_3in),
+        .data_m3_in(p1_result_3out_4in),
+        .data_m4_in(p0_result_3out_4in),
+        .data_m5_in(p1_writeback_data_out),
+        .data_m6_in(p0_writeback_data_out),
+
+        .num_m1_in(p1_writenum_2out),
+        .num_m2_in(p0_writenum_2out),
+        .num_m3_in(p1_writenum_3out),
+        .num_m4_in(p0_writenum_3out),
+        .num_m5_in(p1_writenum_out),
+        .num_m6_in(p0_writenum_out),
+
+        .m1_write_in(p1_write_2out),
+        .m2_write_in(p0_write_2out),
+        .m3_write_in(p1_write_3out),
+        .m4_write_in(p0_write_3out),
+        .m5_write_in(p1_write_out),
+        .m6_write_in(p0_write_out),
+
+        .data_forwarded_out(p1_data_Rm_2in)
+    );
+
+    data_forward p1_data_Rn_forward(
+        .data_reg_in(p1_data_Rn_regout),
+        .num_reg_in(p1_num_Rn_1out),
+
+        .data_m1_in(p1_result_2out_3in),
+        .data_m2_in(p0_result_2out_3in),
+        .data_m3_in(p1_result_3out_4in),
+        .data_m4_in(p0_result_3out_4in),
+        .data_m5_in(p1_writeback_data_out),
+        .data_m6_in(p0_writeback_data_out),
+
+        .num_m1_in(p1_writenum_2out),
+        .num_m2_in(p0_writenum_2out),
+        .num_m3_in(p1_writenum_3out),
+        .num_m4_in(p0_writenum_3out),
+        .num_m5_in(p1_writenum_out),
+        .num_m6_in(p0_writenum_out),
+
+        .m1_write_in(p1_write_2out),
+        .m2_write_in(p0_write_2out),
+        .m3_write_in(p1_write_3out),
+        .m4_write_in(p0_write_3out),
+        .m5_write_in(p1_write_out),
+        .m6_write_in(p0_write_out),
+
+        .data_forwarded_out(p1_data_Rn_2in)
+    );
+
+    data_forward p1_data_Rd_forward(
+        .data_reg_in(p1_data_Rd_regout),
+        .num_reg_in(p1_num_Rd_1out),
+
+        .data_m1_in(p1_result_2out_3in),
+        .data_m2_in(p0_result_2out_3in),
+        .data_m3_in(p1_result_3out_4in),
+        .data_m4_in(p0_result_3out_4in),
+        .data_m5_in(p1_writeback_data_out),
+        .data_m6_in(p0_writeback_data_out),
+
+        .num_m1_in(p1_writenum_2out),
+        .num_m2_in(p0_writenum_2out),
+        .num_m3_in(p1_writenum_3out),
+        .num_m4_in(p0_writenum_3out),
+        .num_m5_in(p1_writenum_out),
+        .num_m6_in(p0_writenum_out),
+
+        .m1_write_in(p1_write_2out),
+        .m2_write_in(p0_write_2out),
+        .m3_write_in(p1_write_3out),
+        .m4_write_in(p0_write_3out),
+        .m5_write_in(p1_write_out),
+        .m6_write_in(p0_write_out),
+
+        .data_forwarded_out(p1_data_Rd_2in)
+    );
+
 
     //----------------pipeline0--------------------------
     pipeline_assembly p0(//Pipeline No.0
@@ -83,6 +262,10 @@ module cpu (
         
         .result_2out_3in(p0_result_2out_3in),
         .result_3out_4in(p0_result_3out_4in),
+        .writenum_2out(p0_writenum_2out),
+        .writenum_3out(p0_writenum_3out),
+        .write_2out(p0_write_2out),
+        .write_3out(p0_write_3out),
 
         .N_out(p0_N),
         .V_out(p0_V),
@@ -145,6 +328,10 @@ module cpu (
         
         .result_2out_3in(p1_result_2out_3in),
         .result_3out_4in(p1_result_3out_4in),
+        .writenum_2out(p1_writenum_2out),
+        .writenum_3out(p1_writenum_3out),
+        .write_2out(p1_write_2out),
+        .write_3out(p1_write_3out),
 
         .N_out(p1_N),
         .V_out(p1_V),
