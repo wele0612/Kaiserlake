@@ -24,7 +24,6 @@ module regfile (
     
     output [15:0] data_read0_out,
     output [15:0] data_read1_out,
-    
     output [15:0] data_read2_out
     /*output [15:0] data_read3_out,
     output [15:0] data_read4_out,
@@ -47,10 +46,10 @@ module regfile (
 
     always @(posedge clk) begin
         if (write0) begin
-            regs[num_write0_in]<=data_write0_in;
+            regs[num_write0_in]=data_write0_in;
         end
         if (write1) begin
-            regs[num_write1_in]<=data_write1_in;
+            regs[num_write1_in]=data_write1_in;
         end
     end
     
