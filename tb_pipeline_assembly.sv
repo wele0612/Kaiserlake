@@ -2,9 +2,6 @@ module tb_pipeline_noforward ();
     reg [15:0] p0_IR_in,p1_IR_in;
     reg [7:0] p0_PC_in,p1_PC_in;
     reg clk, rst;
-    reg [15:0] p0_DM_rdata,p0_DM_wdata,p1_DM_rdata,p1_DM_wdata;
-    reg [8:0] p0_DM_maddr,p1_DM_maddr;
-    reg p0_DM_write_mem,p1_DM_write_mem;
 
     wire [8:0] p0_DM_maddr;
     wire [15:0] p0_DM_wdata;
@@ -12,8 +9,10 @@ module tb_pipeline_noforward ();
     wire [8:0] p1_DM_maddr;
     wire [15:0] p1_DM_wdata;
     wire p1_DM_write_mem;
+    wire [15:0] p0_DM_rdata;
+    wire [15:0] p1_DM_rdata;
 
-    cpu CPU(input clk,
+    cpu CPU(
     clk,
     rst,
     //For test only ----
