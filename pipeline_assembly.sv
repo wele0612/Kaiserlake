@@ -10,11 +10,8 @@ module pipeline_assembly (
     output [2:0] num_Rn_2out,
     output [2:0] num_Rd_2out,
     //to forwarding
-    output [15:0] result_2out_3in,
     output [15:0] result_3out_4in,
-    output [2:0] writenum_2out,
     output [2:0] writenum_3out,
-    output write_2out,
     output write_3out,
 
     output N_out,
@@ -43,7 +40,7 @@ module pipeline_assembly (
 
     input [15:0] data_fRm_2in,
     input [15:0] data_fRn_2in,
-    input [15:0] data_fRd_2in,
+    input [15:0] data_fRd_3in,
 
     output [15:0] data_Rm_2out,
     output [15:0] data_Rn_2out,
@@ -58,6 +55,7 @@ module pipeline_assembly (
     wire [2:0] num_Rd_1out_2in;
     wire [15:0] imm_0out_1in,imm_1out_2in;
     wire [15:0] data_Rd_2out_3in;
+    wire [15:0] result_2out_3in;
 
     wire [15:0] data_Rm_1out_2in;
     wire [15:0] data_Rn_1out_2in;
@@ -66,8 +64,6 @@ module pipeline_assembly (
     wire highbit_shifted_Rm_2out_3in;
     wire highbit_data_Rn_2out_3in;
 
-    assign write_2out=control_2out_3in[3];
-    assign writenum_2out=control_2out_3in[2:0];
     assign write_3out=control_3out_4in[3];
     assign writenum_3out=control_3out_4in[2:0];
 
@@ -142,12 +138,12 @@ module pipeline_assembly (
         .data_Rd_out(data_Rd_2out),
 
         .data_fRm_in(data_fRm_2in),
-        .data_fRn_in(data_fRn_2in),
+        .data_fRn_in(data_fRn_2in)
     );
 
     pipeline_3_memwrt S3_MEMWRT(
         .control_in(control_2out_3in),
-        .data_Rd_in(data_fRd_2in),
+        .data_Rd_in(data_fRd_3in),
         .highbit_shifted_Rm_in(highbit_shifted_Rm_2out_3in),
         .highbit_data_Rn_in(highbit_data_Rn_2out_3in),
         .result_in(result_2out_3in),
