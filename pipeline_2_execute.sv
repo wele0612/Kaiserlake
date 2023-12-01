@@ -5,22 +5,40 @@ module pipeline_2_execute (
     input [15:0] data_Rd_in,
     input [15:0] imm_in,
 
+    input [2:0] num_Rm_in,
+    input [2:0] num_Rn_in,
+    input [2:0] num_Rd_in,
+    output [2:0] num_Rm_out,
+    output [2:0] num_Rn_out,
+    output [2:0] num_Rd_out,
+
     input rst,
     input clk,
 
     output [21:0] control_out,
-    output [15:0] data_Rd_out,
     output [15:0] result_out,
     output highbit_shifted_Rm_out,
     output highbit_data_Rn_out,
 
+    //for forwarding
+    output [15:0] data_Rm_out,
+    output [15:0] data_Rn_out,
+    output [15:0] data_Rd_out,
+
+    input [15:0] data_fRm_in,
+    input [15:0] data_fRn_in,
+
     output loads
 );
-    wire [15:0] data_Rm,data_Rn,imm;
+    wire [15:0] imm;
     vDFF #22 pREG_control (clk,rst,control_in,control_out);
-    vDFF #16 pREG_data_Rm (clk,rst,data_Rm_in,data_Rm);
-    vDFF #16 pREG_data_Rn (clk,rst,data_Rn_in,data_Rn);
+    vDFF #16 pREG_data_Rm (clk,rst,data_Rm_in,data_Rm_out);
+    vDFF #16 pREG_data_Rn (clk,rst,data_Rn_in,data_Rn_out);
     vDFF #16 pREG_data_Rd (clk,rst,data_Rd_in,data_Rd_out);
+
+    vDFF #3 pREG_num_Rm (clk,rst,num_Rm_in,num_Rm_out); //instantiate "reg nums_a"
+    vDFF #3 pREG_num_Rn (clk,rst,num_Rn_in,num_Rn_out); //instantiate "reg nums_b"
+    vDFF #3 pREG_num_Rd (clk,rst,num_Rd_in,num_Rd_out);
 
     vDFF #16 pREG_imm (clk,rst,imm_in,imm);
 
@@ -30,19 +48,19 @@ module pipeline_2_execute (
 
     wire [15:0] data_Rm_shifted;
     shifter SHIFTER(
-        .in(data_Rm),
+        .in(data_fRm_in),
         .shift(shift),
         .sout(data_Rm_shifted)
     );
 
     pipelineALU pALU(
-        .Ain(bsel?imm:data_Rn),
+        .Ain(bsel?imm:data_fRn_in),
         .Bin(asel?16'b0:data_Rm_shifted),
         .ALUop(ALUop),
         .out(result_out)
     );
 
-    assign highbit_data_Rn_out=data_Rn[15];
+    assign highbit_data_Rn_out=data_fRm_in[15];
     assign highbit_shifted_Rm_out=data_Rm_shifted[15];
 endmodule
 
