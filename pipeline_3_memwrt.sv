@@ -22,8 +22,8 @@ module pipeline_3_memwrt (
     output write_mem
 );
     wire [15:0] data_Rd;
-    wire [2:0] opcode;
-    assign opcode=control_out[21:19];
+    //wire [2:0] opcode;
+    //assign opcode=control_out[21:19];
     assign write_mem=inst_type_out[1];//is opcode STR?
 
     wire loads=control_in[8];
