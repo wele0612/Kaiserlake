@@ -15,6 +15,12 @@ module pipeline_0_decode (
     //if these registers are taken as input parameters
     //i.e. will the initial value of them affect the result?
     output reg [2:0] used_RmRnRd_out,
+    output reg [5:0] inst_type,
+    /*
+    inst_type
+    | RSV | RSV | RSV | RSV | STR | LDR |
+      [5]   [4]   [3]   [2]   [1]   [0]
+    */
     
     output reg [15:0] sximm
 );
@@ -37,6 +43,7 @@ module pipeline_0_decode (
         write=0;
         writenum=3'b0;
         used_RmRnRd_out=3'b0;
+        inst_type=6'b0;
 
         num_Rd=3'b0;
         num_Rm=3'b0;
@@ -111,6 +118,7 @@ module pipeline_0_decode (
                 num_Rd=IR_in[7:5];
 
                 used_RmRnRd_out=3'b101;
+                inst_type[1]=1'b1;
             end
 
             3'b011:begin //LDR
@@ -122,6 +130,7 @@ module pipeline_0_decode (
                 writenum=IR_in[7:5];
 
                 used_RmRnRd_out=3'b100;
+                inst_type[0]=1'b1;
             end
 
             default: write=0;
