@@ -38,9 +38,9 @@ module pipeline_assembly (
     output write_mem,
 
     output [2:0] used_RmRnRd_1out,
-    output [2:0] opcode_1out,
-    output [2:0] opcode_2out,
-    output [2:0] opcode_3out,
+    output [5:0] inst_type_1out_2in,
+    output [5:0] inst_type_2out_3in,
+    output [2:0] inst_type_3out,
 
     //loads
     output loads_1out,
@@ -53,6 +53,7 @@ module pipeline_assembly (
     wire [15:0] imm_0out_1in,imm_1out_2in;
     wire [15:0] data_Rd_2out_3in;
     wire [2:0] used_RmRnRd_0out_1in;
+    wire [5:0] inst_type_0out_1in;
 
     wire highbit_shifted_Rm_2out_3in;
     wire highbit_data_Rn_2out_3in;
@@ -64,10 +65,6 @@ module pipeline_assembly (
     assign write_3out=control_3out_4in[3];
     assign writenum_3out=control_3out_4in[2:0];
 
-    assign opcode_1out=control_1out_2in[21:19];
-    assign opcode_2out=control_2out_3in[21:19];
-    assign opcode_3out=control_3out_4in[21:19];
-
     pipeline_0_decode S0_DECODE(
         .IR_in(IR_in),
         .PC(PC_in),
@@ -76,6 +73,7 @@ module pipeline_assembly (
         .num_Rm(num_Rm_0out_1in),
         .num_Rn(num_Rn_0out_1in),
         .num_Rd(num_Rd_0out_1in),
+        .inst_type(inst_type_0out_1in),
         .sximm(imm_0out_1in),
         .used_RmRnRd_out(used_RmRnRd_0out_1in)
     );
@@ -87,6 +85,7 @@ module pipeline_assembly (
         .num_Rd_in(num_Rd_0out_1in),
         .imm_in(imm_0out_1in),
         .used_RmRnRd_in(used_RmRnRd_0out_1in),
+        .inst_type_in(inst_type_0out_1in),
 
         .rst(rst|rst_p[1]),
         .clk(clk),
@@ -98,6 +97,7 @@ module pipeline_assembly (
         .num_Rd_out(num_Rd_1out),
         .imm_out(imm_1out_2in),
         .used_RmRnRd_out(used_RmRnRd_1out),
+        .inst_type_out(inst_type_1out_2in),
 
         .loads(loads_1out)
     );
@@ -108,6 +108,7 @@ module pipeline_assembly (
         .data_Rn_in(data_Rn_2in),
         .data_Rd_in(data_Rd_2in),
         .imm_in(imm_1out_2in),
+        .inst_type_in(inst_type_1out_2in),
 
         .rst(rst|rst_p[2]),
         .clk(clk),
@@ -117,6 +118,7 @@ module pipeline_assembly (
         .result_out(result_2out_3in),
         .highbit_shifted_Rm_out(highbit_shifted_Rm_2out_3in),
         .highbit_data_Rn_out(highbit_data_Rn_2out_3in),
+        .inst_type_out(inst_type_2out_3in),
 
         .loads(loads_2out)
     );
@@ -127,6 +129,7 @@ module pipeline_assembly (
         .highbit_shifted_Rm_in(highbit_shifted_Rm_2out_3in),
         .highbit_data_Rn_in(highbit_data_Rn_2out_3in),
         .result_in(result_2out_3in),
+        .inst_type_in(inst_type_2out_3in),
 
         .rst(rst|rst_p[3]),
         .clk(clk),
@@ -136,6 +139,7 @@ module pipeline_assembly (
         .V_out(V_out),
         .Z_out(Z_out),
         .control_out(control_3out_4in),
+        .inst_type_out(inst_type_3out),
 
         .wdata_mem(wdata_mem),
         .addr_mem(addr_mem),
