@@ -24,7 +24,7 @@ module pipeline_1_readreg (
     vDFF_en #3 pREG_num_Rn (clk,rst,update,num_Rn_in,num_Rn_out); //instantiate "reg nums_b"
     vDFF_en #3 pREG_num_Rd (clk,rst,update,num_Rd_in,num_Rd_out); //注释没活儿可以不写
     vDFF_en #16 pREG_imm (clk,rst,update,imm_in,imm_out); //instantiate "imm"
-    vDFF_en #3 pREG_used_RmRnRd (clk,rst,update,used_RmRnRd_in,used_RmRnRd_out)
+    vDFF_en #3 pREG_used_RmRnRd (clk,rst,update,used_RmRnRd_in,used_RmRnRd_out);
 
     assign loads=control_out[8];
 
