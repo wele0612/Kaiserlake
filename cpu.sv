@@ -38,7 +38,7 @@ module cpu (
     wire [2:0] p0_writenum_1out,p0_writenum_2out,p0_writenum_3out;
     wire p0_write_1out,p0_write_2out,p0_write_3out;
     wire [2:0] p0_used_RmRnRd_1out;
-    wire [2:0] p0S1_opcode,p0S2_opcode,p0S3_opcode;
+    wire [5:0] p0S1_inst_type,p0S2_inst_type,p0S3_inst_type;
 
     wire p0_update_1;
     wire [4:1] p0_rst_HCU;
@@ -62,7 +62,7 @@ module cpu (
     wire [2:0] p1_writenum_1out,p1_writenum_2out,p1_writenum_3out;
     wire p1_write_1out,p1_write_2out,p1_write_3out;
     wire [2:0] p1_used_RmRnRd_1out;
-    wire [2:0] p1S1_opcode,p1S2_opcode,p1S3_opcode;
+    wire [5:0] p1S1_inst_type,p1S2_inst_type,p1S3_inst_type;
 
     wire p1_update_1;
     wire [4:1] p1_rst_HCU;
@@ -285,9 +285,9 @@ module cpu (
         .write_mem(p0_DM_write_mem),
 
         .used_RmRnRd_1out(p0_used_RmRnRd_1out),   
-        .opcode_1out(p0S1_opcode),
-        .opcode_2out(p0S2_opcode),
-        .opcode_3out(p0S3_opcode),
+        .inst_type_1out_2in(p0S1_inst_type),
+        .inst_type_2out_3in(p0S2_inst_type),
+        .inst_type_3out(p0S3_inst_type),
         //laods
         .loads_1out(p0_loads_1out),
         .loads_2out(p0_loads_2out)
@@ -357,9 +357,9 @@ module cpu (
         .write_mem(p1_DM_write_mem),
         
         .used_RmRnRd_1out(p1_used_RmRnRd_1out),
-        .opcode_1out(p1S1_opcode),
-        .opcode_2out(p1S2_opcode),
-        .opcode_3out(p1S3_opcode),
+        .inst_type_1out_2in(p1S1_inst_type),
+        .inst_type_2out_3in(p1S2_inst_type),
+        .inst_type_3out(p1S3_inst_type),
         //laods
         .loads_1out(p1_loads_1out),
         .loads_2out(p1_loads_2out)
@@ -388,29 +388,29 @@ module cpu (
     );
 
     HCU pHCU(
-        .p0S1_opcode(p0S1_opcode),
+        .p0S1_inst_type(p0S1_inst_type),
         .p0S1_readnums({p0_num_Rm_1out,p0_num_Rn_1out,p0_num_Rd_1out}),
         .p0S1_writenum(p0_writenum_1out),
         .p0S1_write(p0_write_1out),
         .p0S1_used_RmRnRd(p0_used_RmRnRd_1out),
 
         .p1S1_readnums({p1_num_Rm_1out,p1_num_Rn_1out,p1_num_Rd_1out}),
-        .p1S1_opcode(p1S1_opcode),
+        .p1S1_inst_type(p1S1_inst_type),
         .p1S1_used_RmRnRd(p1_used_RmRnRd_1out),
 
-        .p0S2_opcode(p0S2_opcode),
+        .p0S2_inst_type(p0S2_inst_type),
         .p0S2_writenum(p0_writenum_2out),
         .p0S2_write(p0_write_2out),
 
-        .p1S2_opcode(p1S2_opcode),
+        .p1S2_inst_type(p1S2_inst_type),
         .p1S2_writenum(p1_writenum_2out),
         .p1S2_write(p1_write_2out),
 
-        .p0S3_opcode(p0S3_opcode),
+        .p0S3_inst_type(p0S3_inst_type),
         .p0S3_writenum(p0_write_3out),
         .p0S3_write(p0_write_3out),
 
-        .p1S3_opcode(p1S3_opcode),
+        .p1S3_inst_type(p1S3_inst_type),
         .p1S3_writenum(p1_write_3out),
         .p1S3_write(p1_write_3out),
 
