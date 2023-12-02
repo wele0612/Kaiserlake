@@ -21,6 +21,9 @@ module cpu (
     output p1_DM_write_mem
 
 );
+    //General contraol & branching signals
+    wire fetch_next;
+
     //-------Pipline 0 signal declare---------------
     wire [2:0] p0_num_Rm_1out,p0_num_Rn_1out,p0_num_Rd_1out;
     wire [15:0] p0_data_Rm_regout,p0_data_Rn_regout,p0_data_Rd_regout;
@@ -32,8 +35,13 @@ module cpu (
     wire [2:0] p0_writenum_out;
     wire p0_write_out;
 
-    wire [2:0] p0_writenum_2out,p0_writenum_3out;
-    wire p0_write_2out,p0_write_3out;
+    wire [2:0] p0_writenum_1out,p0_writenum_2out,p0_writenum_3out;
+    wire p0_write_1out,p0_write_2out,p0_write_3out;
+    wire [2:0] p0_used_RmRnRd_1out;
+    wire [2:0] p0S1_opcode,p0S2_opcode,p0S3_opcode;
+
+    wire p0_update_1;
+    wire [4:1] p0_rst_HCU;
 
     //To BGU
     wire p0_N,p0_V,p0_Z;
@@ -51,25 +59,19 @@ module cpu (
     wire [2:0] p1_writenum_out;
     wire p1_write_out;
 
-    wire [2:0] p1_writenum_2out,p1_writenum_3out;
-    wire p1_write_2out,p1_write_3out;
+    wire [2:0] p1_writenum_1out,p1_writenum_2out,p1_writenum_3out;
+    wire p1_write_1out,p1_write_2out,p1_write_3out;
+    wire [2:0] p1_used_RmRnRd_1out;
+    wire [2:0] p1S1_opcode,p1S2_opcode,p1S3_opcode;
+
+    wire p1_update_1;
+    wire [4:1] p1_rst_HCU;
 
     //To BGU
     wire p1_N,p1_V,p1_Z;
     wire p1_loads_1out,p1_loads_2out;
     //---------------------------------------------
 
-    /*
-    //when forwarding is not ready
-    assign p0_data_Rm_2in=p0_data_Rm_regout;
-    assign p0_data_Rn_2in=p0_data_Rn_regout;
-    assign p0_data_Rd_2in=p0_data_Rd_regout;
-    //when forwarding is not ready
-    assign p1_data_Rm_2in=p1_data_Rm_regout;
-    assign p1_data_Rn_2in=p1_data_Rn_regout;
-    assign p1_data_Rd_2in=p1_data_Rd_regout;
-    */
-    
     data_forward p0_data_Rm_forward(
         .data_reg_in(p0_data_Rm_regout),
         .num_reg_in(p0_num_Rm_1out),
@@ -249,8 +251,8 @@ module cpu (
         .clk(clk),
         .rst(rst),
 
-        .rst_p(4'b0),//not used yet
-        .update_1in(1'b1),//not used yet
+        .rst_p(p0_rst_HCU),//Not finished, waiting for BGU
+        .update_1in(p0_update_1),
 
         .data_Rm_2in(p0_data_Rm_2in),
         .data_Rn_2in(p0_data_Rn_2in),
@@ -262,8 +264,10 @@ module cpu (
         
         .result_2out_3in(p0_result_2out_3in),
         .result_3out_4in(p0_result_3out_4in),
+        .writenum_1out(p0_writenum_1out),
         .writenum_2out(p0_writenum_2out),
         .writenum_3out(p0_writenum_3out),
+        .write_1out(p0_write_1out),
         .write_2out(p0_write_2out),
         .write_3out(p0_write_3out),
 
@@ -279,7 +283,11 @@ module cpu (
         .wdata_mem(p0_DM_wdata),
         .addr_mem(p0_DM_maddr),
         .write_mem(p0_DM_write_mem),
-        
+
+        .used_RmRnRd_1out(p0_used_RmRnRd_1out),   
+        .opcode_1out(p0S1_opcode),
+        .opcode_2out(p0S2_opcode),
+        .opcode_3out(p0S3_opcode),
         //laods
         .loads_1out(p0_loads_1out),
         .loads_2out(p0_loads_2out)
@@ -315,8 +323,8 @@ module cpu (
         .clk(clk),
         .rst(rst),
 
-        .rst_p(4'b0),//not used yet
-        .update_1in(1'b1),//not used yet
+        .rst_p(p1_rst_HCU),//Not finished, waiting for BGU
+        .update_1in(p1_update_1),
 
         .data_Rm_2in(p1_data_Rm_2in),
         .data_Rn_2in(p1_data_Rn_2in),
@@ -328,8 +336,10 @@ module cpu (
         
         .result_2out_3in(p1_result_2out_3in),
         .result_3out_4in(p1_result_3out_4in),
+        .writenum_1out(p1_writenum_1out),
         .writenum_2out(p1_writenum_2out),
         .writenum_3out(p1_writenum_3out),
+        .write_1out(p1_write_1out),
         .write_2out(p1_write_2out),
         .write_3out(p1_write_3out),
 
@@ -346,6 +356,10 @@ module cpu (
         .addr_mem(p1_DM_maddr),
         .write_mem(p1_DM_write_mem),
         
+        .used_RmRnRd_1out(p1_used_RmRnRd_1out),
+        .opcode_1out(p1S1_opcode),
+        .opcode_2out(p1S2_opcode),
+        .opcode_3out(p1S3_opcode),
         //laods
         .loads_1out(p1_loads_1out),
         .loads_2out(p1_loads_2out)
@@ -371,6 +385,40 @@ module cpu (
         .data_write1_in(p1_writeback_data_out),
 
         .clk(clk)
+    );
+
+    HCU pHCU(
+        .p0S1_opcode(p0S1_opcode),
+        .p0S1_readnums({p0_num_Rm_1out,p0_num_Rn_1out,p0_num_Rd_1out}),
+        .p0S1_writenum(p0_writenum_1out),
+        .p0S1_write(p0_write_1out),
+        .p0S1_used_RmRnRd(p0_used_RmRnRd_1out),
+
+        .p1S1_readnums({p1_num_Rm_1out,p1_num_Rn_1out,p1_num_Rd_1out}),
+        .p1S1_opcode(p1S1_opcode),
+        .p1S1_used_RmRnRd(p1_used_RmRnRd_1out),
+
+        .p0S2_opcode(p0S2_opcode),
+        .p0S2_writenum(p0_writenum_2out),
+        .p0S2_write(p0_write_2out),
+
+        .p1S2_opcode(p1S2_opcode),
+        .p1S2_writenum(p1_writenum_2out),
+        .p1S2_write(p1_write_2out),
+
+        .p0S3_opcode(p0S3_opcode),
+        .p0S3_writenum(p0_write_3out),
+        .p0S3_write(p0_write_3out),
+
+        .p1S3_opcode(p1S3_opcode),
+        .p1S3_writenum(p1_write_3out),
+        .p1S3_write(p1_write_3out),
+
+        .p0_update1_out(p0_update_1),
+        .p1_update1_out(p1_update_1),
+        .p0_rst_HCUout(p0_rst_HCU),
+        .p1_rst_HCUout(p1_rst_HCU),
+        .fetch_next(fetch_next)
     );
 
 

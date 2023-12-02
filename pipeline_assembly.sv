@@ -17,8 +17,10 @@ module pipeline_assembly (
     //to forwarding
     output [15:0] result_2out_3in,
     output [15:0] result_3out_4in,
+    output [2:0] writenum_1out,
     output [2:0] writenum_2out,
     output [2:0] writenum_3out,
+    output write_1out,
     output write_2out,
     output write_3out,
 
@@ -36,6 +38,9 @@ module pipeline_assembly (
     output write_mem,
 
     output [2:0] used_RmRnRd_1out,
+    output [2:0] opcode_1out,
+    output [2:0] opcode_2out,
+    output [2:0] opcode_3out,
 
     //loads
     output loads_1out,
@@ -52,10 +57,16 @@ module pipeline_assembly (
     wire highbit_shifted_Rm_2out_3in;
     wire highbit_data_Rn_2out_3in;
 
+    assign write_1out=control_1out_2in[3];
+    assign writenum_1out=control_1out_2in[2:0];
     assign write_2out=control_2out_3in[3];
     assign writenum_2out=control_2out_3in[2:0];
     assign write_3out=control_3out_4in[3];
     assign writenum_3out=control_3out_4in[2:0];
+
+    assign opcode_1out=control_1out_2in[21:19];
+    assign opcode_2out=control_2out_3in[21:19];
+    assign opcode_3out=control_3out_4in[21:19];
 
     pipeline_0_decode S0_DECODE(
         .IR_in(IR_in),
