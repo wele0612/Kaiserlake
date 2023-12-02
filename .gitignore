@@ -125,14 +125,7 @@ quartus_projects/output_files/lab5_quartus_test.done
 quartus_projects/output_files/lab5_quartus_test.flow.rpt
 quartus_projects/output_files/lab5_quartus_test.map.rpt
 quartus_projects/output_files/lab5_quartus_test.map.summary
-.VSCodeCounter/2023-11-06_13-39-13/details.md
-.VSCodeCounter/2023-11-06_13-39-13/diff-details.md
-.VSCodeCounter/2023-11-06_13-39-13/diff.csv
-.VSCodeCounter/2023-11-06_13-39-13/diff.md
-.VSCodeCounter/2023-11-06_13-39-13/diff.txt
-.VSCodeCounter/2023-11-06_13-39-13/results.csv
-.VSCodeCounter/2023-11-06_13-39-13/results.json
-.VSCodeCounter/2023-11-06_13-39-13/results.md
-.VSCodeCounter/2023-11-06_13-39-13/results.txt
 
 modelsim_projects/*
+
+.VSCodeCounter/*
