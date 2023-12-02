@@ -40,7 +40,7 @@ module pipeline_assembly (
     output [2:0] used_RmRnRd_1out,
     output [5:0] inst_type_1out_2in,
     output [5:0] inst_type_2out_3in,
-    output [2:0] inst_type_3out,
+    output [5:0] inst_type_3out,
 
     //loads
     output loads_1out,
