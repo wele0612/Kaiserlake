@@ -11,6 +11,11 @@ module pipeline_0_decode (
     output reg [2:0] num_Rm,//num_Rm
     output reg [2:0] num_Rn,//num_Rn
     output reg [2:0] num_Rd,// this is for Rd in STR
+
+    //if these registers are taken as input parameters
+    //i.e. will the initial value of them affect the result?
+    output reg [2:0] used_RmRnRd_out,
+    
     output reg [15:0] sximm
 );
     wire [2:0] opcode;
@@ -31,6 +36,7 @@ module pipeline_0_decode (
         shift=2'b0;
         write=0;
         writenum=3'b0;
+        used_RmRnRd_out=3'b0;
 
         num_Rd=3'b0;
         num_Rm=3'b0;
@@ -48,6 +54,8 @@ module pipeline_0_decode (
                     ALUop=2'b00; //final result will be imm8+0
                     sximm={{9{IR_in[7]}},IR_in[6:0]};
                     writenum=IR_in[10:8];//set writeback
+
+                    used_RmRnRd_out=3'b000;
                 end else begin//MOV REG
                     writenum=IR_in[7:5];//set Rd
                     shift=IR_in[4:3];//set shift
@@ -55,12 +63,19 @@ module pipeline_0_decode (
                     sximm=16'b0;
                     ALUop=2'b00;
                     bsel=1'b1;
+
+                    used_RmRnRd_out=3'b100;
                 end
                 write=1'b1;//Enable writeback
             end
 
             3'b101: begin
                 ALUop=IR_in[12:11];
+                if (ALUop==2'b11) begin//MVN
+                    used_RmRnRd_out=3'b100;
+                end else begin//ADD,AND,CMP
+                    used_RmRnRd_out=3'b110;
+                end
                 case (ALUop)
                     2'b00,2'b10: begin//ADD,AND
                         num_Rn=IR_in[10:8];
@@ -94,6 +109,8 @@ module pipeline_0_decode (
                 //becase we need to compute R[Rn]+imm
                 sximm={{12{IR_in[4]}},IR_in[3:0]};
                 num_Rd=IR_in[7:5];
+
+                used_RmRnRd_out=3'b011;
             end
 
             3'b011:begin //LDR
@@ -102,6 +119,8 @@ module pipeline_0_decode (
                 sximm={{12{IR_in[4]}},IR_in[3:0]};
                 write=1'b1;
                 writenum=IR_in[7:5];
+
+                used_RmRnRd_out=3'b011;
             end
 
             default: write=0;
