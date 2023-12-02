@@ -25,7 +25,7 @@ module pipeline_2_execute (
     vDFF #16 pREG_data_Rd (clk,rst,data_Rd_in,data_Rd_out);
 
     vDFF #16 pREG_imm (clk,rst,imm_in,imm);
-    vDFF #5 pREG_inst_type (clk,rst,inst_type_in,inst_type_out);
+    vDFF #6 pREG_inst_type (clk,rst,inst_type_in,inst_type_out);
 
     wire [1:0] ALUop,shift;
     wire asel,bsel;

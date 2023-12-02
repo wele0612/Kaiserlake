@@ -31,7 +31,7 @@ module pipeline_3_memwrt (
     vDFF #22 pREG_control (clk,rst,control_in,control_out);
     vDFF #16 pREG_result (clk,rst,result_in,result_out);
     vDFF #16 pREG_data_Rd (clk,rst,data_Rd_in,data_Rd);
-    vDFF #5 pREG_inst_type (clk,rst,inst_type_in,inst_type_out);
+    vDFF #6 pREG_inst_type (clk,rst,inst_type_in,inst_type_out);
     assign wdata_mem=data_Rd;
     assign addr_mem=result_out[8:0];
 
