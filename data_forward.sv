@@ -66,7 +66,7 @@ module data_forward (
         end else if (has_hazard[6]) begin
             data_forwarded_out=data_m6_in;
         end else begin
-            data_forwarded_out=num_reg_in;
+            data_forwarded_out=data_reg_in;
         end
     end
     

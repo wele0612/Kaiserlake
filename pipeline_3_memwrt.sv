@@ -24,7 +24,7 @@ module pipeline_3_memwrt (
     assign opcode=control_out[21:19];
     assign write_mem=(opcode==3'b100);//is opcode STR?
 
-    wire loads=control_out[8];
+    wire loads=control_in[8];
 
     vDFF #22 pREG_control (clk,rst,control_in,control_out);
     vDFF #16 pREG_result (clk,rst,result_in,result_out);
