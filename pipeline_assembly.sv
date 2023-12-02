@@ -35,6 +35,8 @@ module pipeline_assembly (
     output [8:0] addr_mem,
     output write_mem,
 
+    output [2:0] used_RmRnRd_2out;
+
     //loads
     output loads_1out,
     output loads_2out
@@ -45,6 +47,7 @@ module pipeline_assembly (
     wire [2:0] num_Rd_0out_1in;
     wire [15:0] imm_0out_1in,imm_1out_2in;
     wire [15:0] data_Rd_2out_3in;
+    wire [2:0] used_RmRnRd_0out_1in;
 
     wire highbit_shifted_Rm_2out_3in;
     wire highbit_data_Rn_2out_3in;
@@ -62,7 +65,8 @@ module pipeline_assembly (
         .num_Rm(num_Rm_0out_1in),
         .num_Rn(num_Rn_0out_1in),
         .num_Rd(num_Rd_0out_1in),
-        .sximm(imm_0out_1in)
+        .sximm(imm_0out_1in),
+        .used_RmRnRd_out(used_RmRnRd_0out_1in)
     );
 
     pipeline_1_readreg S1_READREG(
@@ -71,6 +75,7 @@ module pipeline_assembly (
         .num_Rn_in(num_Rn_0out_1in),
         .num_Rd_in(num_Rd_0out_1in),
         .imm_in(imm_0out_1in),
+        .used_RmRnRd_in(used_RmRnRd_0out_1in),
 
         .rst(rst|rst_p[1]),
         .clk(clk),
@@ -81,6 +86,7 @@ module pipeline_assembly (
         .num_Rn_out(num_Rn_1out),
         .num_Rd_out(num_Rd_1out),
         .imm_out(imm_1out_2in),
+        .used_RmRnRd_out(used_RmRnRd_2out),
 
         .loads(loads_1out)
     );
