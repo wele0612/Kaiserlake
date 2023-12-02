@@ -35,7 +35,7 @@ module pipeline_assembly (
     output [8:0] addr_mem,
     output write_mem,
 
-    output [2:0] used_RmRnRd_2out;
+    output [2:0] used_RmRnRd_1out,
 
     //loads
     output loads_1out,
@@ -86,7 +86,7 @@ module pipeline_assembly (
         .num_Rn_out(num_Rn_1out),
         .num_Rd_out(num_Rd_1out),
         .imm_out(imm_1out_2in),
-        .used_RmRnRd_out(used_RmRnRd_2out),
+        .used_RmRnRd_out(used_RmRnRd_1out),
 
         .loads(loads_1out)
     );

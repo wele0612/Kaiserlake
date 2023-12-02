@@ -105,22 +105,23 @@ module pipeline_0_decode (
 
             3'b100:begin //STR
                 bsel=1'b1;
-                num_Rm=IR_in[10:8];//Rm is replacing Rn in STR only
+                num_Rm=IR_in[10:8];//Rm is replacing Rn in STR only!!!!!!!!!
                 //becase we need to compute R[Rn]+imm
                 sximm={{12{IR_in[4]}},IR_in[3:0]};
                 num_Rd=IR_in[7:5];
 
-                used_RmRnRd_out=3'b011;
+                used_RmRnRd_out=3'b101;
             end
 
             3'b011:begin //LDR
                 bsel=1'b1;
                 num_Rm=IR_in[10:8];
+                //WE ARE USING Rm AS Rn HERE!!!!!!!!!!!
                 sximm={{12{IR_in[4]}},IR_in[3:0]};
                 write=1'b1;
                 writenum=IR_in[7:5];
 
-                used_RmRnRd_out=3'b011;
+                used_RmRnRd_out=3'b100;
             end
 
             default: write=0;
