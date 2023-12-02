@@ -12,7 +12,7 @@ module pipeline_4_regwrt (
 
     wire [15:0] result;
     wire [21:0] control;
-    vDFF #16 pREG_result (clk,rst,result_in,result);
+    vDFF_nr #16 pREG_result (clk,result_in,result);
     vDFF #22 pREG_control (clk,rst,control_in,control); // USE OF PARAMETER WILL CAUSE ERRORS!!!
 
 
