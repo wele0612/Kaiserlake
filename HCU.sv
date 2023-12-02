@@ -1,4 +1,4 @@
-/* Hazard Control Unit
+/* Hazard Control Unit. Luoling 2023/12/1
 -stall the pipeline and insert bubbles 
 when data hazard cannot be resolved by forwarding.
 
@@ -8,7 +8,7 @@ P0 |    I6    |     I4    |    I2   |   I0     |    ...
 P1 |    I7    |     I5    |    I3   |   I1     |    ...
 ==================================================
 if 
-    -any instruction in S1 relies on LDR in S2 or S3:
+    -any instruction in S1 relies on LDRs in S2 or S3:
         STALL BOTH PIPELINE S1, ADD BUBBLE in S2
     else, if
     -I5 replies on I4, or I5==STR && I4==LDR
@@ -18,17 +18,44 @@ EXAMPLES PROVIDED AT THE BUTTOM.
 ==================================================
 */
 module HCU (
-    output p0_update1_out,
-    output p1_update1_out,
-    output [4:1] p0_rst_HCUout,
-    output [4:1] p1_rst_HCUout,
-    output reg stalled_out
+    input [2:0] p0S1_opcode,//I4 opcode
+    input [5:0] p0S1_readnums,//I4 readnums
+    input [2:0] p0S1_writenum,//I4 writenum
+    input p0S1_write,//I4 write enable
+
+    input [5:0] p1S1_readnums,//I5 readnums
+    input [2:0] p1S1_opcode,//I5 opcode
+
+    input [2:0] p0S2_opcode,//I2 opcode
+    input [2:0] p0S2_writenum,
+    input p0S2_write,
+
+    input [2:0] p1S2_opcode,//I3 opcode
+    input [2:0] p1S2_writenum,
+    input p1S2_write,
+
+    input [2:0] p0S3_opcode,//I0 opcode
+    input [2:0] p0S3_writenum,
+    input p0S3_write,
+
+    input [2:0] p1S3_opcode,//I1 opcode
+    input [2:0] p1S3_writenum,
+    input p1S3_write,
+
+    output reg p0_update1_out,//If I4 move forward
+    output reg p1_update1_out,//If I5 move forward
+    output reg [4:1] p0_rst_HCUout,//High to generate bubbles
+    output reg [4:1] p1_rst_HCUout,
+    output reg fetch_next//If we can fetch the next instruction
 );
+
+    //any instruction in S1 relies on LDRs in S2 or S3
+    
 
 endmodule
 
 /*
-">" indicate forwarding
+">" indicate forwarded data
 ==================================================
 Case 0: if I5 depends on I4
     -DO NOT fetch new instructions
