@@ -49,3 +49,28 @@ module tb_top_HCU;
         $stop;
     end
 endmodule
+
+module tb_top_wPC;
+    reg [3:0] KEY;
+    reg [9:0] SW;
+    wire [9:0] LEDR; 
+    wire [6:0] HEX0, HEX1, HEX2, HEX3, HEX4, HEX5;
+    reg CLOCK_50;
+    lab7bonus_top DUT (KEY,SW,LEDR,HEX0,HEX1,HEX2,HEX3,HEX4,HEX5,CLOCK_50);
+    initial begin
+        forever begin
+            CLOCK_50=1'b0;
+            #2;
+            CLOCK_50=1'b1;
+            #2;
+        end
+    end
+    initial begin
+        KEY[1]=1'b0;
+        @(posedge CLOCK_50);
+        KEY[1]=1'b1;
+        #500;
+        #10;
+        $stop;
+    end
+endmodule

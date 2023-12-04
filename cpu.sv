@@ -2,13 +2,6 @@ module cpu (
 
     input clk,
     input rst,
-
-    //For test only ----
-    input [15:0] p0_IR_in,
-    input [15:0] p1_IR_in,
-    input [7:0] p0_PC_in,
-    input [7:0] p1_PC_in,
-    //------------------
     
     input [15:0] p0_DM_rdata,
     output [8:0] p0_DM_maddr,
@@ -18,12 +11,13 @@ module cpu (
     input [15:0] p1_DM_rdata,
     output [8:0] p1_DM_maddr,
     output [15:0] p1_DM_wdata,
-    output p1_DM_write_mem
+    output p1_DM_write_mem,
 
+    input [15:0] p0_IM_rdata,
+    output [8:0] p0_IM_maddr,
+    input [15:0] p1_IM_rdata,
+    output [8:0] p1_IM_maddr
 );
-    //General contraol & branching signals
-    wire fetch_next;
-
     //-------Pipline 0 signal declare---------------
     wire [2:0] p0_num_Rm_1out,p0_num_Rn_1out,p0_num_Rd_1out;
     wire [15:0] p0_data_Rm_regout,p0_data_Rn_regout,p0_data_Rd_regout;
@@ -71,6 +65,32 @@ module cpu (
     wire p1_N,p1_V,p1_Z;
     wire p1_loads_1out,p1_loads_2out;
     //---------------------------------------------
+    //General contraol & branching signals
+    wire fetch_next;
+
+    wire [15:0] p0_IR_in;
+    wire [15:0] p1_IR_in;
+    wire [7:0] p0_PC_in;
+    wire [7:0] p1_PC_in;
+
+    //-----------------PC--------------------------
+    wire [8:0] PC_curr,PC_next;
+    vDFF #9 REG_PC(clk,rst,PC_next,PC_curr);
+
+    assign p0_IM_maddr={{1'b0},PC_next[7:1],{1'b0}};
+    assign p1_IM_maddr={{1'b0},PC_next[7:1],{1'b1}};
+
+    assign p0_PC_in=p0_IM_maddr;
+    assign p1_PC_in=p0_IM_maddr;
+    assign p0_IR_in=p0_IM_rdata;
+    assign p1_IR_in=p1_IM_rdata;
+    //----------------BGU--------------------------
+    BGU pBGU(
+        .PC(PC_curr),
+        .fetch_next_in(fetch_next),
+
+        .PC_next(PC_next)
+    );
 
     data_forward p0_data_Rm_forward(
         .data_reg_in(p0_data_Rm_regout),
