@@ -18,29 +18,29 @@ EXAMPLES PROVIDED AT THE BUTTOM.
 ==================================================
 */
 module HCU (
-    input [2:0] p0S1_inst_type,//I4 inst_type
+    input [5:0] p0S1_inst_type,//I4 inst_type
     input [8:0] p0S1_readnums,//I4 readnums, Rm-Rn-Rd
     input [2:0] p0S1_writenum,//I4 writenum
     input p0S1_write,//I4 write enable
     input [2:0] p0S1_used_RmRnRd,
 
     input [8:0] p1S1_readnums,//I5 readnums
-    input [2:0] p1S1_inst_type,//I5 inst_type
+    input [5:0] p1S1_inst_type,//I5 inst_type
     input [2:0] p1S1_used_RmRnRd,
 
-    input [2:0] p0S2_inst_type,//I2 inst_type
+    input [5:0] p0S2_inst_type,//I2 inst_type
     input [2:0] p0S2_writenum,
     input p0S2_write,
 
-    input [2:0] p1S2_inst_type,//I3 inst_type
+    input [5:0] p1S2_inst_type,//I3 inst_type
     input [2:0] p1S2_writenum,
     input p1S2_write,
 
-    input [2:0] p0S3_inst_type,//I0 inst_type
+    input [5:0] p0S3_inst_type,//I0 inst_type
     input [2:0] p0S3_writenum,
     input p0S3_write,
 
-    input [2:0] p1S3_inst_type,//I1 inst_type
+    input [5:0] p1S3_inst_type,//I1 inst_type
     input [2:0] p1S3_writenum,
     input p1S3_write,
 

@@ -407,11 +407,11 @@ module cpu (
         .p1S2_write(p1_write_2out),
 
         .p0S3_inst_type(p0S3_inst_type),
-        .p0S3_writenum(p0_write_3out),
+        .p0S3_writenum(p0_writenum_3out),
         .p0S3_write(p0_write_3out),
 
         .p1S3_inst_type(p1S3_inst_type),
-        .p1S3_writenum(p1_write_3out),
+        .p1S3_writenum(p1_writenum_3out),
         .p1S3_write(p1_write_3out),
 
         .p0_update1_out(p0_update_1),
