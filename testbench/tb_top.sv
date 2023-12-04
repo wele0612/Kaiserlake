@@ -24,24 +24,15 @@ module tb_top_HCU;
         force DUT.CPU.p1_IR_in=16'b1101001001000110;
 
         @(posedge CLOCK_50);
-        force DUT.CPU.p0_IR_in=16'b1000001000100100;
-        force DUT.CPU.p1_IR_in=16'b0110001001100100;
+        force DUT.CPU.p0_IR_in=16'b1000001000100100;//STR R1
+        force DUT.CPU.p1_IR_in=16'b0110001001100100;//LDR R3
         @(posedge CLOCK_50);
+        force DUT.CPU.p0_IR_in=16'b1010000110000011;//ADD R4
+        force DUT.CPU.p1_IR_in=16'b1000001010000000;//STR R4
         @(posedge CLOCK_50);
-        @(posedge CLOCK_50);
-        @(posedge CLOCK_50);
-        @(posedge CLOCK_50);
-        force DUT.CPU.p0_IR_in=16'b1010000110000011;
-        force DUT.CPU.p1_IR_in=16'b1000001010000000;
-        @(posedge CLOCK_50);
-        @(posedge CLOCK_50);
-        @(posedge CLOCK_50);
-        @(posedge CLOCK_50);
-        force DUT.CPU.p0_IR_in=16'b0110001000000000;
-        force DUT.CPU.p1_IR_in=16'b1000001000100000;
-        @(posedge CLOCK_50);
-        @(posedge CLOCK_50);
-        @(posedge CLOCK_50);
+        force DUT.CPU.p0_IR_in=16'b0110001000000000;//LDR R0
+        force DUT.CPU.p1_IR_in=16'b1000001000100000;//STR R1
+        @(posedge DUT.CPU.fetch_next);
         @(posedge CLOCK_50);
         force DUT.CPU.p0_IR_in=16'b0;
         force DUT.CPU.p1_IR_in=16'b0;
