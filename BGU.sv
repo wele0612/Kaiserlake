@@ -1,12 +1,12 @@
 module BGU (
-    input [7:0] PC,
+    input [8:0] PC,
     input fetch_next_in,
 
-    output [7:0] PC_next
+    output [8:0] PC_next
 );
 
-    wire [7:0] PC_acc_2;
-    assign PC_acc_2={{PC[7:1]+1},PC[0]};
+    wire [8:0] PC_acc_2;
+    assign PC_acc_2={{PC[8:1]+1'b1},PC[0]};//PC plus 2, next inst
 
     assign PC_next=fetch_next_in?PC_acc_2:PC;
     
