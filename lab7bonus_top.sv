@@ -63,6 +63,22 @@ module lab7bonus_top (
     .q_b(p1_DM_rdata)
   );
 
+  true_dpram_sclk IMEM(
+    .clk(clk),
+
+    .data_a(16'b0),
+    .addr_a(p0_IM_maddr[7:0]),
+    .we_a(1'b0),
+    .q_a(p0_IM_rdata),
+
+    .data_b(16'b0),
+    .addr_b(p1_IM_maddr[7:0]),
+    .we_b(1'b0),
+    .q_b(p1_IM_rdata)
+  );
+
+
+/*
   dprom_sclk IMEM(
     .clk(clk),
     
@@ -72,5 +88,6 @@ module lab7bonus_top (
     .addr_b(p1_IM_maddr[7:0]),
     .q_b(p1_IM_rdata)
   );
+  */
     
 endmodule
