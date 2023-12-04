@@ -4,6 +4,7 @@ module pipeline_2_execute (
     input [15:0] data_Rn_in,
     input [15:0] data_Rd_in,
     input [15:0] imm_in,
+    input [5:0] inst_type_in,
 
     input rst,
     input clk,
@@ -13,16 +14,18 @@ module pipeline_2_execute (
     output [15:0] result_out,
     output highbit_shifted_Rm_out,
     output highbit_data_Rn_out,
+    output [5:0] inst_type_out,
 
     output loads
 );
     wire [15:0] data_Rm,data_Rn,imm;
     vDFF #22 pREG_control (clk,rst,control_in,control_out);
-    vDFF #16 pREG_data_Rm (clk,rst,data_Rm_in,data_Rm);
-    vDFF #16 pREG_data_Rn (clk,rst,data_Rn_in,data_Rn);
-    vDFF #16 pREG_data_Rd (clk,rst,data_Rd_in,data_Rd_out);
+    vDFF_nr #16 pREG_data_Rm (clk,data_Rm_in,data_Rm);
+    vDFF_nr #16 pREG_data_Rn (clk,data_Rn_in,data_Rn);
+    vDFF_nr #16 pREG_data_Rd (clk,data_Rd_in,data_Rd_out);
 
-    vDFF #16 pREG_imm (clk,rst,imm_in,imm);
+    vDFF_nr #16 pREG_imm (clk,imm_in,imm);
+    vDFF #6 pREG_inst_type (clk,rst,inst_type_in,inst_type_out);
 
     wire [1:0] ALUop,shift;
     wire asel,bsel;

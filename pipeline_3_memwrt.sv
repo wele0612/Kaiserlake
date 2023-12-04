@@ -4,6 +4,7 @@ module pipeline_3_memwrt (
     input highbit_shifted_Rm_in,
     input highbit_data_Rn_in,
     input [15:0] result_in,
+    input [5:0] inst_type_in,
 
     input rst,
     input clk,
@@ -13,6 +14,7 @@ module pipeline_3_memwrt (
     output reg V_out,
     output Z_out, 
     output [21:0] control_out,
+    output [5:0] inst_type_out,
 
     //Connect to ram
     output [15:0] wdata_mem,
@@ -20,15 +22,16 @@ module pipeline_3_memwrt (
     output write_mem
 );
     wire [15:0] data_Rd;
-    wire [2:0] opcode;
-    assign opcode=control_out[21:19];
-    assign write_mem=(opcode==3'b100);//is opcode STR?
+    //wire [2:0] opcode;
+    //assign opcode=control_out[21:19];
+    assign write_mem=inst_type_out[1];//is opcode STR?
 
     wire loads=control_in[8];
 
     vDFF #22 pREG_control (clk,rst,control_in,control_out);
-    vDFF #16 pREG_result (clk,rst,result_in,result_out);
-    vDFF #16 pREG_data_Rd (clk,rst,data_Rd_in,data_Rd);
+    vDFF_nr #16 pREG_result (clk,result_in,result_out);
+    vDFF_nr #16 pREG_data_Rd (clk,data_Rd_in,data_Rd);
+    vDFF #6 pREG_inst_type (clk,rst,inst_type_in,inst_type_out);
     assign wdata_mem=data_Rd;
     assign addr_mem=result_out[8:0];
 

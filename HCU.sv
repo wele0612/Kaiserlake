@@ -18,29 +18,29 @@ EXAMPLES PROVIDED AT THE BUTTOM.
 ==================================================
 */
 module HCU (
-    input [2:0] p0S1_opcode,//I4 opcode
+    input [2:0] p0S1_inst_type,//I4 inst_type
     input [8:0] p0S1_readnums,//I4 readnums, Rm-Rn-Rd
     input [2:0] p0S1_writenum,//I4 writenum
     input p0S1_write,//I4 write enable
     input [2:0] p0S1_used_RmRnRd,
 
     input [8:0] p1S1_readnums,//I5 readnums
-    input [2:0] p1S1_opcode,//I5 opcode
+    input [2:0] p1S1_inst_type,//I5 inst_type
     input [2:0] p1S1_used_RmRnRd,
 
-    input [2:0] p0S2_opcode,//I2 opcode
+    input [2:0] p0S2_inst_type,//I2 inst_type
     input [2:0] p0S2_writenum,
     input p0S2_write,
 
-    input [2:0] p1S2_opcode,//I3 opcode
+    input [2:0] p1S2_inst_type,//I3 inst_type
     input [2:0] p1S2_writenum,
     input p1S2_write,
 
-    input [2:0] p0S3_opcode,//I0 opcode
+    input [2:0] p0S3_inst_type,//I0 inst_type
     input [2:0] p0S3_writenum,
     input p0S3_write,
 
-    input [2:0] p1S3_opcode,//I1 opcode
+    input [2:0] p1S3_inst_type,//I1 inst_type
     input [2:0] p1S3_writenum,
     input p1S3_write,
 
@@ -59,13 +59,15 @@ P0 |    I6    |     I4    |    I2   |   I0     |    ...
 P1 |    I7    |     I5    |    I3   |   I1     |    ...
 */
     //any instruction in S1 relies on LDRs in S2 or S3
-    wire [2:0] opcode [5:0];
-    assign opcode[5]=p1S1_opcode;
-    assign opcode[4]=p0S1_opcode;
-    assign opcode[3]=p1S2_opcode;
-    assign opcode[2]=p0S2_opcode;
-    assign opcode[1]=p1S3_opcode;
-    assign opcode[0]=p0S3_opcode;
+    wire isSTR_I5;
+    assign isSTR_I5=p1S1_inst_type[1];
+    wire [5:0] isLDR;
+    assign isLDR[5]=p1S1_inst_type[0];
+    assign isLDR[4]=p0S1_inst_type[0];
+    assign isLDR[3]=p1S2_inst_type[0];
+    assign isLDR[2]=p0S2_inst_type[0];
+    assign isLDR[1]=p1S3_inst_type[0];
+    assign isLDR[0]=p0S3_inst_type[0];
     wire [4:0] write;
     assign write[4]=p0S1_write;
     assign write[3]=p1S2_write;
@@ -86,22 +88,22 @@ P1 |    I7    |     I5    |    I3   |   I1     |    ...
     wire I4_conflict_LDR;
     assign I4_conflict_LDR=I4_Rm_conflict_LDR||I4_Rn_conflict_LDR||I4_Rd_conflict_LDR;
     assign I4_Rm_conflict_LDR=p0S1_used_RmRnRd[2]&&{
-        {I4_Rm==writenum[3]&&opcode[3]==LDR}||
-        {I4_Rm==writenum[2]&&opcode[2]==LDR}||
-        {I4_Rm==writenum[1]&&opcode[1]==LDR}||
-        {I4_Rm==writenum[0]&&opcode[0]==LDR}};
+        {I4_Rm==writenum[3]&&isLDR[3]}||
+        {I4_Rm==writenum[2]&&isLDR[2]}||
+        {I4_Rm==writenum[1]&&isLDR[1]}||
+        {I4_Rm==writenum[0]&&isLDR[0]}};
 
     assign I4_Rn_conflict_LDR=p0S1_used_RmRnRd[1]&&{
-        {I4_Rn==writenum[3]&&opcode[3]==LDR}||
-        {I4_Rn==writenum[2]&&opcode[2]==LDR}||
-        {I4_Rn==writenum[1]&&opcode[1]==LDR}||
-        {I4_Rn==writenum[0]&&opcode[0]==LDR}};
+        {I4_Rn==writenum[3]&&isLDR[3]}||
+        {I4_Rn==writenum[2]&&isLDR[2]}||
+        {I4_Rn==writenum[1]&&isLDR[1]}||
+        {I4_Rn==writenum[0]&&isLDR[0]}};
 
     assign I4_Rd_conflict_LDR=p0S1_used_RmRnRd[0]&&{
-        {I4_Rd==writenum[3]&&opcode[3]==LDR}||
-        {I4_Rd==writenum[2]&&opcode[2]==LDR}||
-        {I4_Rd==writenum[1]&&opcode[1]==LDR}||
-        {I4_Rd==writenum[0]&&opcode[0]==LDR}};
+        {I4_Rd==writenum[3]&&isLDR[3]}||
+        {I4_Rd==writenum[2]&&isLDR[2]}||
+        {I4_Rd==writenum[1]&&isLDR[1]}||
+        {I4_Rd==writenum[0]&&isLDR[0]}};
 
     wire [2:0] I5_Rm=p1S1_readnums[8:6];
     wire [2:0] I5_Rn=p1S1_readnums[5:3];
@@ -110,22 +112,22 @@ P1 |    I7    |     I5    |    I3   |   I1     |    ...
     wire I5_conflict_LDR;
     assign I5_conflict_LDR=I5_Rm_conflict_LDR||I5_Rn_conflict_LDR||I5_Rd_conflict_LDR;
     assign I5_Rm_conflict_LDR=p1S1_used_RmRnRd[2]&&{
-        {I5_Rm==writenum[3]&&opcode[3]==LDR}||
-        {I5_Rm==writenum[2]&&opcode[2]==LDR}||
-        {I5_Rm==writenum[1]&&opcode[1]==LDR}||
-        {I5_Rm==writenum[0]&&opcode[0]==LDR}};
+        {I5_Rm==writenum[3]&&isLDR[3]}||
+        {I5_Rm==writenum[2]&&isLDR[2]}||
+        {I5_Rm==writenum[1]&&isLDR[1]}||
+        {I5_Rm==writenum[0]&&isLDR[0]}};
 
     assign I5_Rn_conflict_LDR=p1S1_used_RmRnRd[1]&&{
-        {I5_Rn==writenum[3]&&opcode[3]==LDR}||
-        {I5_Rn==writenum[2]&&opcode[2]==LDR}||
-        {I5_Rn==writenum[1]&&opcode[1]==LDR}||
-        {I5_Rn==writenum[0]&&opcode[0]==LDR}};
+        {I5_Rn==writenum[3]&&isLDR[3]}||
+        {I5_Rn==writenum[2]&&isLDR[2]}||
+        {I5_Rn==writenum[1]&&isLDR[1]}||
+        {I5_Rn==writenum[0]&&isLDR[0]}};
 
     assign I5_Rd_conflict_LDR=p1S1_used_RmRnRd[0]&&{
-        {I5_Rd==writenum[3]&&opcode[3]==LDR}||
-        {I5_Rd==writenum[2]&&opcode[2]==LDR}||
-        {I5_Rd==writenum[1]&&opcode[1]==LDR}||
-        {I5_Rd==writenum[0]&&opcode[0]==LDR}};
+        {I5_Rd==writenum[3]&&isLDR[3]}||
+        {I5_Rd==writenum[2]&&isLDR[2]}||
+        {I5_Rd==writenum[1]&&isLDR[1]}||
+        {I5_Rd==writenum[0]&&isLDR[0]}};
 
     wire I5_Rm_rely_I4,I5_Rn_rely_I4,I5_Rd_rely_I4;
     assign I5_Rm_rely_I4={I5_Rm==writenum[4]&&write[4]&&p1S1_used_RmRnRd[2]};
@@ -135,7 +137,7 @@ P1 |    I7    |     I5    |    I3   |   I1     |    ...
     assign I5_rely_I4=I5_Rm_rely_I4||I5_Rn_rely_I4||I5_Rd_rely_I4;
 
     wire I5STR_I4LDR;
-    assign I5STR_I4LDR=(opcode[5]==STR)&&(opcode[4]==LDR);
+    assign I5STR_I4LDR=(isSTR_I5)&&(isLDR[4]);
 
     always @(*) begin
         p0_update1_out=1'b1;
