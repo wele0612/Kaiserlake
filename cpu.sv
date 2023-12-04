@@ -77,8 +77,8 @@ module cpu (
     wire [8:0] PC_curr,PC_next;
     vDFF #9 REG_PC(clk,rst,PC_next,PC_curr);
 
-    assign p0_IM_maddr={{1'b0},PC_next[7:1],{1'b0}};
-    assign p1_IM_maddr={{1'b0},PC_next[7:1],{1'b1}};
+    assign p0_IM_maddr={{1'b0},PC_curr[7:1],{1'b0}};
+    assign p1_IM_maddr={{1'b0},PC_curr[7:1],{1'b1}};
 
     assign p0_PC_in=p0_IM_maddr;
     assign p1_PC_in=p0_IM_maddr;
