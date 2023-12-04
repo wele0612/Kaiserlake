@@ -68,6 +68,7 @@ module tb_top_wPC;
     initial begin
         KEY[1]=1'b0;
         @(posedge CLOCK_50);
+        #1;
         KEY[1]=1'b1;
         #500;
         #10;
