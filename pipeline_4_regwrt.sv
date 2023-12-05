@@ -2,9 +2,11 @@ module pipeline_4_regwrt (
     input [21:0] control_in,
     input [15:0] rdata_in, //this one need no pipeline reg! reg included in the sync-ram output
     input [15:0] result_in,
+    input [15:0] delayed_B_in,
 
     input clk,rst,
 
+    output [15:0] delayed_B_out,
     output [15:0] writeback_data_out,
     output [2:0] writenum_out,
     output write_out
@@ -13,8 +15,9 @@ module pipeline_4_regwrt (
     wire [15:0] result;
     wire [21:0] control;
     vDFF_nr #16 pREG_result (clk,result_in,result);
-    vDFF #22 pREG_control (clk,rst,control_in,control); // USE OF PARAMETER WILL CAUSE ERRORS!!!
+    vDFF #22 pREG_control (clk,rst,control_in,control);
 
+    vDFF_nr #16 pREG_delayed_B (clk,delayed_B_in,delayed_B_out);
 
     wire [2:0] opcode;
     assign opcode=control[21:19];

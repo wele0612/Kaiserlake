@@ -5,6 +5,12 @@ module pipeline_3_memwrt (
     input highbit_data_Rn_in,
     input [15:0] result_in,
     input [5:0] inst_type_in,
+    input [15:0] delayed_B_in,
+    input [2:0] delayed_cond_in,
+    input N_in,
+    input V_in,
+    input N_in,//We may use flags from the other pipeline, so...
+    //this input one should be the correct one.
 
     input rst,
     input clk,
@@ -15,6 +21,8 @@ module pipeline_3_memwrt (
     output Z_out, 
     output [21:0] control_out,
     output [5:0] inst_type_out,
+    output [15:0] delayed_B_out,
+    output reg do_delayed_B,
 
     //Connect to ram
     output [15:0] wdata_mem,
@@ -22,11 +30,35 @@ module pipeline_3_memwrt (
     output write_mem
 );
     wire [15:0] data_Rd;
-    //wire [2:0] opcode;
-    //assign opcode=control_out[21:19];
     assign write_mem=inst_type_out[1];//is opcode STR?
 
     wire loads=control_in[8];
+    wire [2:0] delayed_cond;
+    parameter NV=3'd0,
+            AL=3'd1,
+            EQ=3'd2,
+            NE=3'd3,
+            LT=3'd4,
+            LE=3'd5,
+            GT=3'd6,
+            GE=3'd7;
+
+    vDFF_nr #16 pREG_delayed_B (clk,delayed_B_in,delayed_B_out);
+    vDFF #3 pREG_delayed_cond (clk,rst,delayed_cond_in,delayed_cond);
+
+    always @(*) begin
+        case (delayed_cond)
+            NV: do_delayed_B=1'b0;
+            AL: do_delayed_B=1'b1;
+            EQ: do_delayed_B=Z;
+            NE: do_delayed_B=~Z;
+            LT: do_delayed_B=(N!=V);
+            LE: do_delayed_B=(N!=V)||Z;
+            GT: do_delayed_B=~((N!=V)||Z);
+            GE: do_delayed_B=(N==V);//~LT
+            default: do_delayed_B=1'b0;
+        endcase
+    end
 
     vDFF #22 pREG_control (clk,rst,control_in,control_out);
     vDFF_nr #16 pREG_result (clk,result_in,result_out);

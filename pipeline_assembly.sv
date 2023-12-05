@@ -28,6 +28,10 @@ module pipeline_assembly (
     output V_out,
     output Z_out,
 
+    input N_in,
+    input V_in,
+    input Z_in,
+
     output [15:0] writeback_data_out,
     output [2:0] writenum_out,
     output write_out,
@@ -42,6 +46,8 @@ module pipeline_assembly (
     output [5:0] inst_type_2out_3in,
     output [5:0] inst_type_3out,
 
+    output [15:0] delayed_B_4out,
+    output do_delayed_B_4out,
     //loads
     output loads_1out,
     output loads_2out
@@ -57,6 +63,12 @@ module pipeline_assembly (
 
     wire highbit_shifted_Rm_2out_3in;
     wire highbit_data_Rn_2out_3in;
+    //----------for flow control---------
+    wire [15:0] delayed_B_1in,delayed_B_1out_2in,delayed_B_2out_3in,delayed_B_3out_4in;
+    wire [2:0] delayed_cond_1in,delayed_cond_1out_2in,delayed_cond_2out_3in;
+    wire do_delayed_B_3out_4in;
+
+    //-----------------------------------
 
     assign write_1out=control_1out_2in[3];
     assign writenum_1out=control_1out_2in[2:0];
@@ -86,6 +98,7 @@ module pipeline_assembly (
         .imm_in(imm_0out_1in),
         .used_RmRnRd_in(used_RmRnRd_0out_1in),
         .inst_type_in(inst_type_0out_1in),
+        .delayed_B_in(delayed_B_1in),
 
         .rst(rst|rst_p[1]),
         .clk(clk),
@@ -98,6 +111,7 @@ module pipeline_assembly (
         .imm_out(imm_1out_2in),
         .used_RmRnRd_out(used_RmRnRd_1out),
         .inst_type_out(inst_type_1out_2in),
+        .delayed_B_out(delayed_B_1out_2in),
 
         .loads(loads_1out)
     );
@@ -109,6 +123,7 @@ module pipeline_assembly (
         .data_Rd_in(data_Rd_2in),
         .imm_in(imm_1out_2in),
         .inst_type_in(inst_type_1out_2in),
+        .delayed_B_in(delayed_B_1out_2in),
 
         .rst(rst|rst_p[2]),
         .clk(clk),
@@ -119,6 +134,7 @@ module pipeline_assembly (
         .highbit_shifted_Rm_out(highbit_shifted_Rm_2out_3in),
         .highbit_data_Rn_out(highbit_data_Rn_2out_3in),
         .inst_type_out(inst_type_2out_3in),
+        .delayed_B_out(delayed_B_2out_3in),
 
         .loads(loads_2out)
     );
@@ -130,6 +146,7 @@ module pipeline_assembly (
         .highbit_data_Rn_in(highbit_data_Rn_2out_3in),
         .result_in(result_2out_3in),
         .inst_type_in(inst_type_2out_3in),
+        .delayed_B_in(delayed_B_2out_3in),
 
         .rst(rst|rst_p[3]),
         .clk(clk),
@@ -140,6 +157,11 @@ module pipeline_assembly (
         .Z_out(Z_out),
         .control_out(control_3out_4in),
         .inst_type_out(inst_type_3out),
+        .delayed_B_out(delayed_B_3out_4in),
+
+        .N_in(N_in),
+        .V_in(V_in),
+        .Z_in(Z_in),
 
         .wdata_mem(wdata_mem),
         .addr_mem(addr_mem),
@@ -150,9 +172,12 @@ module pipeline_assembly (
         .control_in(control_3out_4in),
         .rdata_in(rdata_mem),
         .result_in(result_3out_4in),
+        .delayed_B_in(delayed_B_3out_4in),
 
         .rst(rst|rst_p[4]),
         .clk(clk),
+
+        .delayed_B_4out(delayed_B_4out),
 
         .writeback_data_out(writeback_data_out),
         .writenum_out(writenum_out),

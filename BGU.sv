@@ -18,6 +18,12 @@ module BGU (
     output reg reset_S1
 );
     wire [7:0] p0_imm,p1_imm;
+    wire [4:0] p0_cond,p1_cond;
+    /*
+     EQ |  NE | LT | LE | ALWAYS 
+     [3]  [2]   [1]  [0]
+    */
+
     wire is_p1_b;
     assign p0_imm=p0_IR_in[7:0];
     assign p1_imm=p1_IR_in[7:0];
@@ -59,8 +65,9 @@ module BGU (
             end
         end
     end
-    //Of reset_S1 is 1, that means whatever instruction now is invalid
-    
+    //When reset_S1 is 1, that means whatever instruction now is invalid
+
+    //is_px_b indicates if px_IR_in is a valid branching insturction    
     assign is_p0_b=(p0_IR_in[15:13]==3'b001&&(~IR0_invalid_out)&&(~reset_S1));
     assign is_p1_b=(p1_IR_in[15:13]==3'b001&&(~reset_S1));
 

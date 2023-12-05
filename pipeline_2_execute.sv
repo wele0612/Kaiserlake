@@ -5,6 +5,8 @@ module pipeline_2_execute (
     input [15:0] data_Rd_in,
     input [15:0] imm_in,
     input [5:0] inst_type_in,
+    input [15:0] delayed_B_in,
+    input [2:0] delayed_cond_in,
 
     input rst,
     input clk,
@@ -15,6 +17,8 @@ module pipeline_2_execute (
     output highbit_shifted_Rm_out,
     output highbit_data_Rn_out,
     output [5:0] inst_type_out,
+    output [15:0] delayed_B_out,
+    output wire [2:0] delayed_cond_out,
 
     output loads
 );
@@ -26,6 +30,9 @@ module pipeline_2_execute (
 
     vDFF_nr #16 pREG_imm (clk,imm_in,imm);
     vDFF #6 pREG_inst_type (clk,rst,inst_type_in,inst_type_out);
+
+    vDFF_nr #16 pREG_delayed_B (clk,delayed_B_in,delayed_B_out);
+    vDFF #3 pREG_delayed_cond (clk,rst,delayed_cond_in,delayed_cond_out);
 
     wire [1:0] ALUop,shift;
     wire asel,bsel;

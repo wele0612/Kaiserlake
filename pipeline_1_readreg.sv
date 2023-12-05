@@ -6,6 +6,8 @@ module pipeline_1_readreg (
     input [15:0] imm_in,
     input [2:0] used_RmRnRd_in,
     input [5:0] inst_type_in,
+    input [15:0] delayed_B_in,
+    input [2:0] delayed_cond_in,
 
     input rst,
     input clk,
@@ -18,6 +20,8 @@ module pipeline_1_readreg (
     output wire [15:0] imm_out,
     output wire [2:0] used_RmRnRd_out,
     output wire [5:0] inst_type_out,
+    output wire [15:0] delayed_B_out,
+    output wire [2:0] delayed_cond_out,
 
     output wire loads
 );
@@ -28,6 +32,9 @@ module pipeline_1_readreg (
     vDFF_ennr #16 pREG_imm (clk,update,imm_in,imm_out); //instantiate "imm"
     vDFF_en #3 pREG_used_RmRnRd (clk,rst,update,used_RmRnRd_in,used_RmRnRd_out);
     vDFF_en #6 pREG_inst_type (clk,rst,update,inst_type_in,inst_type_out);
+
+    vDFF_ennr #16 pREG_delayed_B (clk,update,delayed_B_in,delayed_B_out);
+    vDFF_en #3 pREG_delayed_cond (clk,rst,update,delayed_cond_in,delayed_cond_out);
 
     assign loads=control_out[8];
 
