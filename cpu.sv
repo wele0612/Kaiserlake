@@ -358,8 +358,8 @@ module cpu (
         .clk(clk),
         .rst(rst),
 
-        //.rst_p(p0_rst_HCU|{3'b0,reset_S1_BGU_out}),//Not finished, waiting for BGU
-        .rst_p(p0_rst_HCU),
+        //.rst_p(p1_rst_HCU|{3'b0,reset_S1_BGU_out}),//Not finished, waiting for BGU
+        .rst_p(p1_rst_HCU),
         .update_1in(p1_update_1),
 
         .data_Rm_2in(p1_data_Rm_2in),
