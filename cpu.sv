@@ -16,7 +16,9 @@ module cpu (
     input [15:0] p0_IM_rdata,
     output [8:0] p0_IM_maddr,
     input [15:0] p1_IM_rdata,
-    output [8:0] p1_IM_maddr
+    output [8:0] p1_IM_maddr,
+
+    output IM_ena
 );
     //-------Pipline 0 signal declare---------------
     wire [2:0] p0_num_Rm_1out,p0_num_Rn_1out,p0_num_Rd_1out;
@@ -74,6 +76,7 @@ module cpu (
     wire [7:0] p1_PC_in;
 
     wire IR0_invalid,reset_S1_BGU_out,is_p0_b;
+    assign IM_ena=fetch_next;
     //-----------------PC--------------------------
     wire [8:0] PC_curr,PC_next;
     //vDFF_en #9 REG_PC(clk,rst,fetch_next,PC_next,PC_curr);

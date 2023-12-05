@@ -20,6 +20,7 @@ module lab7bonus_top (
 
   wire p0_DM_write_mem,p1_DM_write_mem;
   wire mem_we_a,mem_we_b;
+  wire IM_ena;
 
   //for timing anlysis
   assign LEDR[5]=p0_DM_rdata[0];
@@ -46,12 +47,14 @@ module lab7bonus_top (
     .p0_IM_rdata(p0_IM_rdata),
     .p0_IM_maddr(p0_IM_maddr),
     .p1_IM_rdata(p1_IM_rdata),
-    .p1_IM_maddr(p1_IM_maddr)
+    .p1_IM_maddr(p1_IM_maddr),
 
+    .IM_ena(IM_ena)
   );
 
   true_dpram_sclk MEM(
     .clk(clk),
+    .ena(1'b1),
 
     .data_a(p0_DM_wdata),
     .addr_a(p0_DM_maddr[7:0]),
@@ -66,6 +69,7 @@ module lab7bonus_top (
 
   true_dpram_sclk IMEM(
     .clk(clk),
+    .ena(IM_ena),
 
     .data_a(16'b0),
     .addr_a(rst?8'b0:p0_IM_maddr[7:0]),

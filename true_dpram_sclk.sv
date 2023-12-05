@@ -1,6 +1,7 @@
 module true_dpram_sclk
 (
 	clk,
+	ena,
 	data_a,addr_a,we_a,
 	q_a
 
@@ -10,6 +11,7 @@ module true_dpram_sclk
 
 );
 	input clk;
+	input ena;
 
 	input [15:0] data_a;
 	input [7:0] addr_a;
@@ -35,6 +37,7 @@ module true_dpram_sclk
 		begin
 			mem[addr_a] = data_a;
 		end
+		if(ena)
 		q_a <= mem[addr_a];
 	end
 	
@@ -45,6 +48,7 @@ module true_dpram_sclk
 		begin
 			mem[addr_b] = data_b;
 		end
+		if(ena)
 		q_b <= mem[addr_b];
 	end
 endmodule
