@@ -7,8 +7,9 @@ module lab7bonus_top (
   output [6:0] HEX0, HEX1, HEX2, HEX3, HEX4, HEX5;
   input CLOCK_50;
 
-  wire clk;
+  wire clk,rst;
   assign clk=CLOCK_50;
+  assign rst=~KEY[1];
 
   wire [15:0] p0_DM_rdata,p1_DM_rdata;
   wire [15:0] p0_DM_wdata,p1_DM_wdata;
@@ -30,7 +31,7 @@ module lab7bonus_top (
 
   cpu CPU(
     .clk(clk),
-    .rst(~KEY[1]),
+    .rst(rst),
 
     .p0_DM_rdata(p0_DM_rdata),
     .p0_DM_maddr(p0_DM_maddr),
@@ -67,12 +68,12 @@ module lab7bonus_top (
     .clk(clk),
 
     .data_a(16'b0),
-    .addr_a(p0_IM_maddr[7:0]),
+    .addr_a(rst?8'b0:p0_IM_maddr[7:0]),
     .we_a(1'b0),
     .q_a(p0_IM_rdata),
 
     .data_b(16'b0),
-    .addr_b(p1_IM_maddr[7:0]),
+    .addr_b(rst?8'b0:p1_IM_maddr[7:0]),
     .we_b(1'b0),
     .q_b(p1_IM_rdata)
   );

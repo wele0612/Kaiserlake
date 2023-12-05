@@ -10,9 +10,11 @@ module BGU (
 
     output [8:0] PC_next_out,
     output IR0_invalid_out,
-    output reset_S1
+    output is_p0_b,
+    output reg reset_S1
 );
     wire [7:0] p0_imm,p1_imm;
+    wire is_p1_b;
     assign p0_imm=p0_IR_in[7:0];
     assign p1_imm=p1_IR_in[7:0];
     
@@ -31,16 +33,26 @@ module BGU (
     */
 
     wire [7:0] PC_prev_p1,PC_prev_p2;
-    vDFF #8 REG_PC_PREV_p1(clk,rst,{PC[7:1],1'b1},PC_prev_p1);
-    vDFF #8 REG_PC_PREV_p2(clk,rst,PC[7:0]+2'd2,PC_prev_p2);
+    vDFF_en #8 REG_PC_PREV_p1(clk,rst,fetch_next_in,{PC[7:1],1'b1},PC_prev_p1);
+    vDFF_en #8 REG_PC_PREV_p2(clk,rst,fetch_next_in,PC[7:0]+2'd2,PC_prev_p2);
 
     //B works at the clk after next, clean up garbage data in pipeline before that.
-    vDFF REG_reset_S1_next_clk(clk,rst,(is_p0_b||is_p1_b),reset_S1);
+    //vDFF REG_reset_S1_next_clk(clk,rst,(is_p0_b||is_p1_b),reset_S1);
+    always @(posedge clk) begin
+        if(rst)begin
+            reset_S1=1'b1;
+        end else begin
+            if (fetch_next_in) begin
+                reset_S1=(is_p0_b||is_p1_b);
+            end
+        end
+    end
+    //Of reset_S1 is 1, that means whatever instruction now is invalid
     //assign reset_S1=0;
 
-    wire is_p0_b,is_p1_b;
-    assign is_p0_b=(p0_IR_in[15:13]==3'b001&&(~IR0_invalid_out));
-    assign is_p1_b=(p1_IR_in[15:13]==3'b001);
+    
+    assign is_p0_b=(p0_IR_in[15:13]==3'b001&&(~IR0_invalid_out)&&(~reset_S1));
+    assign is_p1_b=(p1_IR_in[15:13]==3'b001&&(~reset_S1));
 
     wire [7:0] destination;
     wire [7:0] p0_dest,p1_dest;
@@ -51,9 +63,13 @@ module BGU (
     wire [8:0] PC_acc_2,PC_next;
 
     wire next_IR0_invalid;
-    vDFF REG_next_IR0_invalid(clk,rst,PC_next[0],next_IR0_invalid);
-    vDFF REG_IR0_invalid(clk,rst,next_IR0_invalid,IR0_invalid_out);
+    vDFF_en REG_next_IR0_invalid(clk,rst,fetch_next_in,PC_next[0],next_IR0_invalid);
+    vDFF_en REG_IR0_invalid(clk,rst,fetch_next_in,next_IR0_invalid,IR0_invalid_out);
     
+    vDFF_en REG_prev_nextPC();
+    //in case the pipeline stalls, we nned to know the correct "next PC"\
+    //just before it stall, and use it to update PC when stall is gone
+
     assign PC_acc_2={{PC[8:1]+1'b1},PC[0]};//PC plus 2, next inst
 
     assign PC_next={(is_p0_b||is_p1_b)?destination:PC_acc_2};

@@ -73,7 +73,7 @@ module cpu (
     wire [7:0] p0_PC_in;
     wire [7:0] p1_PC_in;
 
-    wire IR0_invalid,reset_S1_BGU_out;
+    wire IR0_invalid,reset_S1_BGU_out,is_p0_b;
     //-----------------PC--------------------------
     wire [8:0] PC_curr,PC_next;
     //vDFF_en #9 REG_PC(clk,rst,fetch_next,PC_next,PC_curr);
@@ -99,7 +99,8 @@ module cpu (
 
         .PC_next_out(PC_next),
         .IR0_invalid_out(IR0_invalid),
-        .reset_S1(reset_S1_BGU_out)
+        .reset_S1(reset_S1_BGU_out),
+        .is_p0_b(is_p0_b)//the instruction following B is not valid.
     );
 
     data_forward p0_data_Rm_forward(
@@ -348,7 +349,7 @@ module cpu (
 
     //----------------------pipeline1-------------------------
     pipeline_assembly p1(//Pipeline No.1
-        .IR_in(reset_S1_BGU_out?16'b0:p1_IR_in),
+        .IR_in(reset_S1_BGU_out||is_p0_b?16'b0:p1_IR_in),
         .PC_in(p1_PC_in),
 
         .clk(clk),
