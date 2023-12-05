@@ -73,9 +73,11 @@ module cpu (
     wire [7:0] p0_PC_in;
     wire [7:0] p1_PC_in;
 
+    wire IR0_invalid,reset_S1_BGU_out;
     //-----------------PC--------------------------
     wire [8:0] PC_curr,PC_next;
-    vDFF #9 REG_PC(clk,rst,PC_next,PC_curr);
+    //vDFF_en #9 REG_PC(clk,rst,fetch_next,PC_next,PC_curr);
+    vDFF_en #9 REG_PC(clk,rst,fetch_next,PC_next,PC_curr);
 
     assign p0_IM_maddr={{1'b0},PC_curr[7:1],{1'b0}};
     assign p1_IM_maddr={{1'b0},PC_curr[7:1],{1'b1}};
@@ -89,7 +91,15 @@ module cpu (
         .PC(PC_curr),
         .fetch_next_in(fetch_next),
 
-        .PC_next(PC_next)
+        .p0_IR_in(p0_IR_in),
+        .p1_IR_in(p1_IR_in),
+
+        .clk(clk),
+        .rst(rst),
+
+        .PC_next_out(PC_next),
+        .IR0_invalid_out(IR0_invalid),
+        .reset_S1(reset_S1_BGU_out)
     );
 
     data_forward p0_data_Rm_forward(
@@ -271,7 +281,8 @@ module cpu (
         .clk(clk),
         .rst(rst),
 
-        .rst_p(p0_rst_HCU),//Not finished, waiting for BGU
+        //.rst_p(p0_rst_HCU|{3'b0,IR0_invalid||reset_S1_BGU_out}),//Not finished, waiting for BGU
+        .rst_p(p0_rst_HCU|{3'b0,IR0_invalid||reset_S1_BGU_out}),//Not finished, waiting for BGU
         .update_1in(p0_update_1),
 
         .data_Rm_2in(p0_data_Rm_2in),
@@ -337,13 +348,14 @@ module cpu (
 
     //----------------------pipeline1-------------------------
     pipeline_assembly p1(//Pipeline No.1
-        .IR_in(p1_IR_in),
+        .IR_in(reset_S1_BGU_out?16'b0:p1_IR_in),
         .PC_in(p1_PC_in),
 
         .clk(clk),
         .rst(rst),
 
-        .rst_p(p1_rst_HCU),//Not finished, waiting for BGU
+        //.rst_p(p0_rst_HCU|{3'b0,reset_S1_BGU_out}),//Not finished, waiting for BGU
+        .rst_p(p0_rst_HCU),
         .update_1in(p1_update_1),
 
         .data_Rm_2in(p1_data_Rm_2in),

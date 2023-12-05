@@ -46,6 +46,7 @@ module pipeline_0_decode (
         inst_type=6'b0;
 
         num_Rd=3'b0;
+        //num_Rm=IR_in[2:0];
         num_Rm=3'b0;
         num_Rn=3'b0;
         sximm=16'b0;
@@ -135,6 +136,9 @@ module pipeline_0_decode (
 
             default: write=0;
         endcase
+        
+        //We can simply set Rd blindly
+        num_Rd=IR_in[7:5];
 
     end
     
