@@ -76,6 +76,8 @@ module cpu (
     wire [7:0] p1_PC_in;
 
     wire IR0_invalid,reset_S1_BGU_out,is_p0_b;
+    wire valid_flag_pipeline;
+
     assign IM_ena=fetch_next;
     //-----------------PC--------------------------
     wire [8:0] PC_curr,PC_next;
@@ -99,6 +101,10 @@ module cpu (
 
         .clk(clk),
         .rst(rst),
+
+        .N(valid_flag_pipeline?p1_N:p0_N),
+        .V(valid_flag_pipeline?p1_V:p0_V),
+        .Z(valid_flag_pipeline?p1_Z:p0_Z),
 
         .PC_next_out(PC_next),
         .IR0_invalid_out(IR0_invalid),
@@ -457,5 +463,40 @@ module cpu (
         .fetch_next(fetch_next)
     );
 
+    flag_indicate pFLAG_INDICATE(
+        .p0_loads(p0_loads_2out),
+        .p1_loads(p1_loads_2out),
+        .rst(rst),
+        .clk(clk),
 
+        .valid_pipeline(valid_flag_pipeline)
+    );
+
+endmodule
+
+//State machine that indicate which pipeline we should use for flag
+//when both pipeline is updating flags, p1's flag is more recent
+module flag_indicate (
+    input p0_loads,
+    input p1_loads,
+    input rst,
+    input clk,
+
+    output reg valid_pipeline
+);
+    always @(posedge clk) begin
+        if (rst) begin
+            valid_pipeline<=1'b0;
+        end else begin
+            
+            case ({p0_loads,p1_loads})
+                2'b00: valid_pipeline<=valid_pipeline; 
+                2'b01: valid_pipeline<=1'b1;
+                2'b10: valid_pipeline<=1'b0;
+                2'b11: valid_pipeline<=1'b1;
+                default: valid_pipeline<=valid_pipeline; 
+            endcase
+        end
+    end
+    
 endmodule

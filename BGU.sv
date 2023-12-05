@@ -5,6 +5,10 @@ module BGU (
     input clk,
     input rst,
 
+    input N,
+    input V,
+    input Z,
+
     input [15:0] p0_IR_in,
     input [15:0] p1_IR_in,
 
@@ -17,6 +21,14 @@ module BGU (
     wire is_p1_b;
     assign p0_imm=p0_IR_in[7:0];
     assign p1_imm=p1_IR_in[7:0];
+    /*
+    Conditional branch
+    */
+    wire EQ,NE,LT,LE;
+    assign EQ=Z;
+    assign NE=~Z;
+    assign LT=N^V;
+    assign LE=LT|EQ;
     
     /* for following situation:
     0x04:   goto 0x11(or any odd address)
@@ -37,7 +49,7 @@ module BGU (
     vDFF_en #8 REG_PC_PREV_p2(clk,rst,fetch_next_in,PC[7:0]+2'd2,PC_prev_p2);
 
     //B works at the clk after next, clean up garbage data in pipeline before that.
-    //vDFF REG_reset_S1_next_clk(clk,rst,(is_p0_b||is_p1_b),reset_S1);
+    //In other words, PC will overshoot before B works. We need to prevent that.
     always @(posedge clk) begin
         if(rst)begin
             reset_S1=1'b1;
@@ -48,8 +60,6 @@ module BGU (
         end
     end
     //Of reset_S1 is 1, that means whatever instruction now is invalid
-    //assign reset_S1=0;
-
     
     assign is_p0_b=(p0_IR_in[15:13]==3'b001&&(~IR0_invalid_out)&&(~reset_S1));
     assign is_p1_b=(p1_IR_in[15:13]==3'b001&&(~reset_S1));
