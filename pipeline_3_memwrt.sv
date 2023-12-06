@@ -9,7 +9,7 @@ module pipeline_3_memwrt (
     input [2:0] delayed_cond_in,
     input N_in,
     input V_in,
-    input N_in,//We may use flags from the other pipeline, so...
+    input Z_in,//We may use flags from the other pipeline, so...
     //this input one should be the correct one.
 
     input rst,
@@ -50,12 +50,12 @@ module pipeline_3_memwrt (
         case (delayed_cond)
             NV: do_delayed_B=1'b0;
             AL: do_delayed_B=1'b1;
-            EQ: do_delayed_B=Z;
-            NE: do_delayed_B=~Z;
-            LT: do_delayed_B=(N!=V);
-            LE: do_delayed_B=(N!=V)||Z;
-            GT: do_delayed_B=~((N!=V)||Z);
-            GE: do_delayed_B=(N==V);//~LT
+            EQ: do_delayed_B=Z_in;
+            NE: do_delayed_B=~Z_in;
+            LT: do_delayed_B=(N_in!=V_in);
+            LE: do_delayed_B=(N_in!=V_in)||Z_in;
+            GT: do_delayed_B=~((N_in!=V_in)||Z_in);
+            GE: do_delayed_B=(N_in==V_in);//~LT
             default: do_delayed_B=1'b0;
         endcase
     end
@@ -69,7 +69,7 @@ module pipeline_3_memwrt (
 
     wire highbit_shifted_Rm,highbit_data_Rn;
     wire [15:0] result_for_flag;
-    vDFF_en #18 flagREG(clk,rst,loads,
+    vDFF_ennr #18 flagREG(clk,loads,
         {highbit_shifted_Rm_in,highbit_data_Rn_in,result_in},
         {highbit_shifted_Rm,highbit_data_Rn,result_for_flag});
 
