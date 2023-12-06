@@ -23,7 +23,7 @@ module BGU (
     output [8:0] PC_next_out,
     output IR0_invalid_out,
     output is_p0_b,
-    output reg reset_S1
+    output reset_S1
 );
     
 
@@ -51,18 +51,20 @@ module BGU (
     vDFF_en #8 REG_PC_PREV_p1(clk,rst,fetch_next_in,{PC[7:1],1'b1},PC_prev_p1);
     vDFF_en #8 REG_PC_PREV_p2(clk,rst,fetch_next_in,PC[7:0]+2'd2,PC_prev_p2);
 
+    reg reset_S1_regout;
     //B works at the clk after next, clean up garbage data in pipeline before that.
     //In other words, PC will overshoot before B works. We need to prevent that.
     always @(posedge clk) begin
         if(rst)begin
-            reset_S1=1'b1;
+            reset_S1_regout=1'b1;
         end else begin
             if (fetch_next_in) begin
-                reset_S1=(is_p0_b||is_p1_b);
+                reset_S1_regout=(is_p0_b||is_p1_b);
             end
         end
     end
     //When reset_S1 is 1, that means whatever instruction now is invalid
+    assign reset_S1=reset_S1_regout&&(~(p0_do_delayed_B||p1_do_delayed_B));
 
     //is_px_b indicates if px_IR_in is a valid branching insturction    
     assign is_p0_b=((p0_IR_in[15:13]==3'b001||p0_IR_in[15:13]==3'b010)&&(~IR0_invalid_out)&&(~reset_S1));
@@ -98,10 +100,10 @@ module BGU (
 
     wire [8:0] PC_acc_2,PC_next;
 
-    wire next_IR0_invalid;
+    wire next_IR0_invalid,next_IR0_invalid_regout;
     vDFF_en REG_next_IR0_invalid(clk,rst,fetch_next_in,PC_next[0],next_IR0_invalid);
-    vDFF_en REG_IR0_invalid(clk,rst,fetch_next_in,next_IR0_invalid,IR0_invalid_out);
-    
+    vDFF_en REG_IR0_invalid(clk,rst,fetch_next_in,next_IR0_invalid,next_IR0_invalid_regout);
+    assign IR0_invalid_out=next_IR0_invalid_regout&&(~p0_do_delayed_B);
     //vDFF_en REG_prev_nextPC();//WHY HERE??
     //in case the pipeline stalls, we nned to know the correct "next PC"\
     //just before it stall, and use it to update PC when stall is gone

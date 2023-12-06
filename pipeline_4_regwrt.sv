@@ -4,6 +4,7 @@ module pipeline_4_regwrt (
     input [15:0] result_in,
     input [15:0] delayed_B_in,
     input do_delayed_B_in,
+    input fetch_next_in,
 
     input clk,rst,
 
@@ -19,8 +20,8 @@ module pipeline_4_regwrt (
     vDFF_nr #16 pREG_result (clk,result_in,result);
     vDFF #22 pREG_control (clk,rst,control_in,control);
 
-    vDFF_nr #16 pREG_delayed_B (clk,delayed_B_in,delayed_B_out);
-    vDFF pREG_do_delayed_B (clk,rst,do_delayed_B_in,do_delayed_B_out);
+    vDFF_ennr #16 pREG_delayed_B (clk,fetch_next_in||(~do_delayed_B_out),delayed_B_in,delayed_B_out);
+    vDFF_en pREG_do_delayed_B (clk,rst,fetch_next_in||(~do_delayed_B_out),do_delayed_B_in,do_delayed_B_out);
 
     wire [2:0] opcode;
     assign opcode=control[21:19];

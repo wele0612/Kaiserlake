@@ -5,6 +5,7 @@ module pipeline_assembly (
     input clk,rst,
     input [4:1] rst_p,//S0 need no reset
     input update_1in,
+    input fetch_next_in,
 
     //to outside REGFILE
     input [15:0] data_Rm_2in,
@@ -186,6 +187,7 @@ module pipeline_assembly (
         .result_in(result_3out_4in),
         .delayed_B_in(delayed_B_3out_4in),
         .do_delayed_B_in(do_delayed_B_3out_4in),
+        .fetch_next_in(fetch_next_in),
 
         .rst(rst|rst_p[4]),
         .clk(clk),

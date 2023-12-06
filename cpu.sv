@@ -315,6 +315,7 @@ module cpu (
         //.rst_p(p0_rst_HCU|{3'b0,IR0_invalid||reset_S1_BGU_out}),//Not finished, waiting for BGU
         .rst_p(p0_rst_HCU|{3'b0,IR0_invalid||reset_S1_BGU_out}),//Not finished, waiting for BGU
         .update_1in(p0_update_1),
+        .fetch_next_in(fetch_next),
 
         .data_Rm_2in(p0_data_Rm_2in),
         .data_Rn_2in(p0_data_Rn_2in),
@@ -402,6 +403,7 @@ module cpu (
         //.rst_p(p1_rst_HCU|{3'b0,reset_S1_BGU_out}),//Not finished, waiting for BGU
         .rst_p(p1_rst_HCU),
         .update_1in(p1_update_1),
+        .fetch_next_in(fetch_next),
 
         .data_Rm_2in(p1_data_Rm_2in),
         .data_Rn_2in(p1_data_Rn_2in),
