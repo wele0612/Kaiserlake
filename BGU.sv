@@ -11,30 +11,31 @@ module BGU (
 
     input [15:0] p0_IR_in,
     input [15:0] p1_IR_in,
+    
+    output [15:0] p0_delayed_B_1in,
+    output [2:0] p0_delayed_cond_1in,
+    output [15:0] p1_delayed_B_1in,
+    output [2:0] p1_delayed_cond_1in,
 
     output [8:0] PC_next_out,
     output IR0_invalid_out,
     output is_p0_b,
     output reg reset_S1
 );
+    parameter NV=3'd0,
+            AL=3'd1,
+            EQ=3'd2,
+            NE=3'd3,
+            LT=3'd4,
+            LE=3'd5,
+            GT=3'd6,
+            GE=3'd7;
+
     wire [7:0] p0_imm,p1_imm;
-    wire [4:0] p0_cond,p1_cond;
-    /*
-     EQ |  NE | LT | LE | ALWAYS 
-     [3]  [2]   [1]  [0]
-    */
 
     wire is_p1_b;
     assign p0_imm=p0_IR_in[7:0];
     assign p1_imm=p1_IR_in[7:0];
-    /*
-    Conditional branch
-    */
-    wire EQ,NE,LT,LE;
-    assign EQ=Z;
-    assign NE=~Z;
-    assign LT=N^V;
-    assign LE=LT|EQ;
     
     /* for following situation:
     0x04:   goto 0x11(or any odd address)
@@ -91,5 +92,46 @@ module BGU (
 
     assign PC_next={(is_p0_b||is_p1_b)?destination:PC_acc_2};
     assign PC_next_out={PC_next[8:1],1'b0};//PC should be even
+    
+endmodule
+
+/*Process dealing with conditional branches
+0). We convert BLE, BLT, BEQ... To a pair of unconditional branches.
+    For example, BEQ imm->
+            [A] goto pc+1+imm (if EQ)
+            [B] goto pc+1     (if NE)
+    Unconditioned B will be like this:
+    B imm->
+            [A] goto pc+1+imm (if AL)
+            [B] goto pc+1     (if NV)
+    Function call will be like this:
+    BL(X) imm->
+            [A] goto func     (if AL)  This one must be in delayed!
+            [B] goto pc+1     (if NV)
+1). BGU is fine dealing with unconditioned B.
+    We can feed one of converted branch into BGU, the other into delayed.
+    Later Stage3 of pipeline, if conditions for delayed branches are met,
+        pipeline will cleanup and do the delayed one.
+    
+2). For the delayed one, we need to save its destination address. Since we don't
+    know what PC will be when the delayed one happens.
+3). When deciding which to feed into which, we can use a fixed decision or prediction. 
+
+The following module does 0).
+*/
+module branch_decode (
+    input [15:0] IR_in,
+    input prediction,
+    input [7:0] PCp1_for_this,
+
+    output [15:0] destination_now,
+    output [15:0] destination_delayed,
+    output [2:0] cond_delayed
+);
+    
+
+
+
+
     
 endmodule
