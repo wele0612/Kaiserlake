@@ -69,8 +69,8 @@ module BGU (
     //When reset_S1 is 1, that means whatever instruction now is invalid
 
     //is_px_b indicates if px_IR_in is a valid branching insturction    
-    assign is_p0_b=(p0_IR_in[15:13]==3'b001&&(~IR0_invalid_out)&&(~reset_S1));
-    assign is_p1_b=(p1_IR_in[15:13]==3'b001&&(~reset_S1));
+    assign is_p0_b=((p0_IR_in[15:13]==3'b001||p0_IR_in[15:13]==3'b010)&&(~IR0_invalid_out)&&(~reset_S1));
+    assign is_p1_b=((p1_IR_in[15:13]==3'b001||p1_IR_in[15:13]==3'b010)&&(~reset_S1));
 
     wire [7:0] destination;
     wire [7:0] p0_dest,p1_dest;
@@ -106,7 +106,7 @@ endmodule
             [B] goto pc+1     (if NV)
     Function call will be like this:
     BL(X) imm->
-            [A] goto func     (if AL)  This one must be in delayed!
+            [A] goto [TBR]    (if AL)  Dest to be replace in delayed pipeline
             [B] goto pc+1     (if NV)
 1). BGU is fine dealing with unconditioned B.
     We can feed one of converted branch into BGU, the other into delayed.
@@ -121,17 +121,72 @@ The following module does 0).
 */
 module branch_decode (
     input [15:0] IR_in,
+    input B_format,//1=B imm, 0=B dest
     input prediction,
-    input [7:0] PCp1_for_this,
+    input [7:0] PCp1_for_this,//PC plus 1 for this
 
     output [15:0] destination_now,
     output [15:0] destination_delayed,
     output [2:0] cond_delayed
 );
-    
+    wire [7:0] dest_ifB; //destination if branch
+    wire [7:0] imm;
+    assign imm=IR_in[7:0]
+    assign dest_ifB=B_format?
+        (PCp1_for_this+imm):imm;//if B_format is 0, it is the destination already.
 
+    wire [7:0] dest_ifnB;
+    assign dest_ifnB=PCp1_for_this;
 
+    reg take_B_now;
+    wire [2:0] cond,opcode;
+    assign cond=IR_in[10:8];
+    assign opcode=IR_in[15:13];
+    reg [2:0] cond_ifB,cond_ifnB;
 
+    //Decode branch
+    always @(*) begin
+        cond_ifB=AL;//Defalut: branch will always happen
+        cond_ifnB=NV;//Defalut: not branch will never happen
+        if(opcode==3'b001&&cond==3'b000) begin
+            //if unconditioned branch,just branch.
+            take_B_now=1'b1;
+        end else if (opcode==3'b001) begin
+            //if conditioned branch, use prediction.
+            take_B_now=prediction;
+            //set conditions!
+            case (cond)
+                3'b001: begin//BEQ
+                    cond_ifB=EQ;
+                    cond_ifnB=NE;
+                end 
+                3'b010: begin//BNE
+                    cond_ifB=NE;
+                    cond_ifnB=EQ;
+                end
+                3'b011: begin//BLT
+                    cond_ifB=LT;
+                    cond_ifnB=GE;
+                end
+                3'b100: begin//BLE
+                    cond_ifB=LE;
+                    cond_ifnB=GT;
+                end
+                default: begin
+                    cond_ifB=AL;
+                    cond_ifnB=NV;
+                end
+            endcase
+        end else begin
+            //BL, BX and BLX needs to be delayed.
+            take_B_now=1'b0;
+        end
+    end
+
+    assign destination_now=take_B_now?dest_ifB:dest_ifnB;
+
+    assign destination_delayed=take_B_now?dest_ifnB:dest_ifB;
+    assign cond_delayed=take_B_now?cond_ifnB:cond_ifB;
 
     
 endmodule
