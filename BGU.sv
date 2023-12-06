@@ -11,7 +11,10 @@ module BGU (
 
     input [15:0] p0_IR_in,
     input [15:0] p1_IR_in,
-    
+
+    input p0_do_delayed_B,
+    input p1_do_delayed_B,
+
     output [15:0] p0_delayed_B_1in,
     output [2:0] p0_delayed_cond_1in,
     output [15:0] p1_delayed_B_1in,
@@ -22,20 +25,13 @@ module BGU (
     output is_p0_b,
     output reg reset_S1
 );
-    parameter NV=3'd0,
-            AL=3'd1,
-            EQ=3'd2,
-            NE=3'd3,
-            LT=3'd4,
-            LE=3'd5,
-            GT=3'd6,
-            GE=3'd7;
+    
 
-    wire [7:0] p0_imm,p1_imm;
+    //wire [7:0] p0_imm,p1_imm;
 
     wire is_p1_b;
-    assign p0_imm=p0_IR_in[7:0];
-    assign p1_imm=p1_IR_in[7:0];
+    //assign p0_imm=p0_IR_in[7:0];
+    //assign p1_imm=p1_IR_in[7:0];
     
     /* for following situation:
     0x04:   goto 0x11(or any odd address)
@@ -74,8 +70,28 @@ module BGU (
 
     wire [7:0] destination;
     wire [7:0] p0_dest,p1_dest;
-    assign p0_dest=p0_imm+PC_prev_p1;//destination if p0 is B
-    assign p1_dest=p1_imm+PC_prev_p2;//destination if p1 is B
+    //assign p0_dest=p0_imm+PC_prev_p1;//destination if p0 is B
+    branch_decode p0_B_DECODE(
+        .IR_in(p0_IR_in),
+        .B_format(p0_do_delayed_B),
+        .prediction(1'b1),
+        .PCp1_for_this(PC_prev_p1),
+
+        .destination_now(p0_dest),
+        .destination_delayed(p0_delayed_B_1in),
+        .cond_delayed(p0_delayed_cond_1in)
+    );
+    //assign p1_dest=p1_imm+PC_prev_p2;//destination if p1 is B
+    branch_decode p1_B_DECODE(
+        .IR_in(p1_IR_in),
+        .B_format(p1_do_delayed_B),
+        .prediction(1'b1),
+        .PCp1_for_this(PC_prev_p2),
+
+        .destination_now(p1_dest),
+        .destination_delayed(p1_delayed_B_1in),
+        .cond_delayed(p1_delayed_cond_1in)
+    );
     assign destination=is_p0_b?p0_dest:p1_dest;
 
     wire [8:0] PC_acc_2,PC_next;
@@ -106,8 +122,8 @@ endmodule
             [B] goto pc+1     (if NV)
     Function call will be like this:
     BL(X) imm->
-            [A] goto [TBR]    (if AL)  Dest to be replace in delayed pipeline
-            [B] goto pc+1     (if NV)
+            [A] goto pc+1+imm (if NV)  //this imm actually makes no sense.
+            [B] goto pc+1+?   (if AL)  Will have calculation later, is not final
 1). BGU is fine dealing with unconditioned B.
     We can feed one of converted branch into BGU, the other into delayed.
     Later Stage3 of pipeline, if conditions for delayed branches are met,
@@ -121,19 +137,28 @@ The following module does 0).
 */
 module branch_decode (
     input [15:0] IR_in,
-    input B_format,//1=B imm, 0=B dest
+    input B_format,//1=B dest,0=B imm
     input prediction,
     input [7:0] PCp1_for_this,//PC plus 1 for this
 
-    output [15:0] destination_now,
-    output [15:0] destination_delayed,
+    output [7:0] destination_now,
+    output [7:0] destination_delayed,
     output [2:0] cond_delayed
 );
+    parameter NV=3'd0,
+            AL=3'd1,
+            EQ=3'd2,
+            NE=3'd3,
+            LT=3'd4,
+            LE=3'd5,
+            GT=3'd6,
+            GE=3'd7;
+
     wire [7:0] dest_ifB; //destination if branch
     wire [7:0] imm;
-    assign imm=IR_in[7:0]
+    assign imm=IR_in[7:0];
     assign dest_ifB=B_format?
-        (PCp1_for_this+imm):imm;//if B_format is 0, it is the destination already.
+        imm:(PCp1_for_this+imm);//if B_format is 0, it is the destination already.
 
     wire [7:0] dest_ifnB;
     assign dest_ifnB=PCp1_for_this;
@@ -149,8 +174,12 @@ module branch_decode (
         cond_ifB=AL;//Defalut: branch will always happen
         cond_ifnB=NV;//Defalut: not branch will never happen
         if(opcode==3'b001&&cond==3'b000) begin
-            //if unconditioned branch,just branch.
+            //if unconditioned branch,use [A] branched for now.
+            //So that unbranched [B] carrying PC+1 can be sent into pipeline.
+            //We will calculate function destination in pipeline
             take_B_now=1'b1;
+            cond_ifB=NV;
+            cond_ifnB=AL;
         end else if (opcode==3'b001) begin
             //if conditioned branch, use prediction.
             take_B_now=prediction;

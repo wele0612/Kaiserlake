@@ -42,6 +42,8 @@ module cpu (
     //To BGU
     wire p0_N,p0_V,p0_Z;
     wire p0_loads_1out,p0_loads_2out;
+    wire [15:0] p0_delayed_B_1in;
+    wire [2:0] p0_delayed_cond_1in;
     //---------------------------------------------
 
     //-------Pipline 1 signal declare---------------
@@ -66,8 +68,10 @@ module cpu (
     //To BGU
     wire p1_N,p1_V,p1_Z;
     wire p1_loads_1out,p1_loads_2out;
+    wire [15:0] p1_delayed_B_1in;
+    wire [2:0] p1_delayed_cond_1in;
     //---------------------------------------------
-    //General contraol & branching signals
+    //General control & branching signals
     wire fetch_next;
 
     wire [15:0] p0_IR_in;
@@ -77,6 +81,9 @@ module cpu (
 
     wire IR0_invalid,reset_S1_BGU_out,is_p0_b;
     wire valid_flag_pipeline;
+
+    wire [15:0] p0_delayed_B,p1_delayed_B;
+    wire p0_do_delayed_B,p1_do_delayed_B;
 
     assign IM_ena=fetch_next;
     //-----------------PC--------------------------
@@ -89,8 +96,9 @@ module cpu (
 
     assign p0_PC_in=p0_IM_maddr;
     assign p1_PC_in=p0_IM_maddr;
-    assign p0_IR_in=p0_IM_rdata;
-    assign p1_IR_in=p1_IM_rdata;
+    //Enable delayed Branching
+    assign p0_IR_in=p0_do_delayed_B?p0_delayed_B:p0_IM_rdata;
+    assign p1_IR_in=p1_do_delayed_B?p1_delayed_B:p1_IM_rdata;
     //----------------BGU--------------------------
     BGU pBGU(
         .PC(PC_curr),
@@ -289,7 +297,7 @@ module cpu (
         .PC_in(p0_PC_in),
 
         .clk(clk),
-        .rst(rst),
+        .rst(rst||p0_do_delayed_B||p1_do_delayed_B),
 
         //.rst_p(p0_rst_HCU|{3'b0,IR0_invalid||reset_S1_BGU_out}),//Not finished, waiting for BGU
         .rst_p(p0_rst_HCU|{3'b0,IR0_invalid||reset_S1_BGU_out}),//Not finished, waiting for BGU
@@ -316,6 +324,10 @@ module cpu (
         .V_out(p0_V),
         .Z_out(p0_Z),
 
+        .N_in(valid_flag_pipeline?p1_N:p0_N),
+        .V_in(valid_flag_pipeline?p1_V:p0_V),
+        .Z_in(valid_flag_pipeline?p1_Z:p0_Z),
+
         .writeback_data_out(p0_writeback_data_out),
         .writenum_out(p0_writenum_out),
         .write_out(p0_write_out),
@@ -329,6 +341,12 @@ module cpu (
         .inst_type_1out_2in(p0S1_inst_type),
         .inst_type_2out_3in(p0S2_inst_type),
         .inst_type_3out(p0S3_inst_type),
+
+        .delayed_B_1in(p0_delayed_B_1in),
+        .delayed_cond_1in(p0_delayed_cond_1in),
+        .delayed_B_4out(p0_delayed_B),
+        .do_delayed_B_4out(p0_do_delayed_B),
+
         //laods
         .loads_1out(p0_loads_1out),
         .loads_2out(p0_loads_2out)
@@ -362,7 +380,7 @@ module cpu (
         .PC_in(p1_PC_in),
 
         .clk(clk),
-        .rst(rst),
+        .rst(rst||p0_do_delayed_B||p1_do_delayed_B),
 
         //.rst_p(p1_rst_HCU|{3'b0,reset_S1_BGU_out}),//Not finished, waiting for BGU
         .rst_p(p1_rst_HCU),
@@ -389,6 +407,10 @@ module cpu (
         .V_out(p1_V),
         .Z_out(p1_Z),
 
+        .N_in(valid_flag_pipeline?p1_N:p0_N),
+        .V_in(valid_flag_pipeline?p1_V:p0_V),
+        .Z_in(valid_flag_pipeline?p1_Z:p0_Z),
+
         .writeback_data_out(p1_writeback_data_out),
         .writenum_out(p1_writenum_out),
         .write_out(p1_write_out),
@@ -402,6 +424,12 @@ module cpu (
         .inst_type_1out_2in(p1S1_inst_type),
         .inst_type_2out_3in(p1S2_inst_type),
         .inst_type_3out(p1S3_inst_type),
+
+        .delayed_B_1in(p1_delayed_B_1in),
+        .delayed_cond_1in(p1_delayed_cond_1in),
+        .delayed_B_4out(p1_delayed_B),
+        .do_delayed_B_4out(p1_do_delayed_B),
+
         //laods
         .loads_1out(p1_loads_1out),
         .loads_2out(p1_loads_2out)
