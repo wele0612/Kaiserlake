@@ -70,6 +70,8 @@ module BGU (
 
     wire [7:0] destination;
     wire [7:0] p0_dest,p1_dest;
+    assign p0_delayed_B_1in[15:8]=8'b001_00_000;
+    assign p1_delayed_B_1in[15:8]=8'b001_00_000;
     //assign p0_dest=p0_imm+PC_prev_p1;//destination if p0 is B
     branch_decode p0_B_DECODE(
         .IR_in(p0_IR_in),
@@ -78,7 +80,7 @@ module BGU (
         .PCp1_for_this(PC_prev_p1),
 
         .destination_now(p0_dest),
-        .destination_delayed(p0_delayed_B_1in),
+        .destination_delayed(p0_delayed_B_1in[7:0]),
         .cond_delayed(p0_delayed_cond_1in)
     );
     //assign p1_dest=p1_imm+PC_prev_p2;//destination if p1 is B
@@ -89,7 +91,7 @@ module BGU (
         .PCp1_for_this(PC_prev_p2),
 
         .destination_now(p1_dest),
-        .destination_delayed(p1_delayed_B_1in),
+        .destination_delayed(p1_delayed_B_1in[7:0]),
         .cond_delayed(p1_delayed_cond_1in)
     );
     assign destination=is_p0_b?p0_dest:p1_dest;
@@ -100,7 +102,7 @@ module BGU (
     vDFF_en REG_next_IR0_invalid(clk,rst,fetch_next_in,PC_next[0],next_IR0_invalid);
     vDFF_en REG_IR0_invalid(clk,rst,fetch_next_in,next_IR0_invalid,IR0_invalid_out);
     
-    vDFF_en REG_prev_nextPC();
+    //vDFF_en REG_prev_nextPC();//WHY HERE??
     //in case the pipeline stalls, we nned to know the correct "next PC"\
     //just before it stall, and use it to update PC when stall is gone
 
@@ -171,15 +173,13 @@ module branch_decode (
 
     //Decode branch
     always @(*) begin
-        cond_ifB=AL;//Defalut: branch will always happen
+        cond_ifB=NV;//Defalut: branch will always happen
         cond_ifnB=NV;//Defalut: not branch will never happen
         if(opcode==3'b001&&cond==3'b000) begin
             //if unconditioned branch,use [A] branched for now.
-            //So that unbranched [B] carrying PC+1 can be sent into pipeline.
-            //We will calculate function destination in pipeline
             take_B_now=1'b1;
-            cond_ifB=NV;
-            cond_ifnB=AL;
+            cond_ifB=AL;
+            cond_ifnB=NV;
         end else if (opcode==3'b001) begin
             //if conditioned branch, use prediction.
             take_B_now=prediction;
@@ -206,9 +206,12 @@ module branch_decode (
                     cond_ifnB=NV;
                 end
             endcase
-        end else begin
+        end else if (opcode==3'b010) begin
             //BL, BX and BLX needs to be delayed.
-            take_B_now=1'b0;
+            //So that unbranched [B] carrying PC+1 can be sent into pipeline.
+            //We will calculate function destination in pipeline
+            cond_ifnB=AL;
+            take_B_now=1'b1;
         end
     end
 

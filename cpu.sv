@@ -112,12 +112,20 @@ module cpu (
         .p0_IR_in(p0_IR_in),
         .p1_IR_in(p1_IR_in),
 
+        .p0_do_delayed_B(p0_do_delayed_B),
+        .p1_do_delayed_B(p1_do_delayed_B),
+
         .clk(clk),
         .rst(rst),
 
         .N(valid_flag_pipeline?p1_N:p0_N),
         .V(valid_flag_pipeline?p1_V:p0_V),
         .Z(valid_flag_pipeline?p1_Z:p0_Z),
+
+        .p0_delayed_B_1in(p0_delayed_B_1in),
+        .p0_delayed_cond_1in(p0_delayed_cond_1in),
+        .p1_delayed_B_1in(p1_delayed_B_1in),
+        .p1_delayed_cond_1in(p1_delayed_cond_1in),
 
         .PC_next_out(PC_next),
         .IR0_invalid_out(IR0_invalid),
@@ -507,6 +515,7 @@ module cpu (
     flag_indicate pFLAG_INDICATE(
         .p0_loads(p0_loads_2out),
         .p1_loads(p1_loads_2out),
+        .S3S4_do_delayed_B(S3_do_delayed_B||S4_do_delayed_B),
         .rst(rst),
         .clk(clk),
 
