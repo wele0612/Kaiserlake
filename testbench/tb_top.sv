@@ -70,7 +70,7 @@ module tb_top_wPC;
         @(posedge CLOCK_50);
         #1;
         KEY[1]=1'b1;
-        #500;
+        #5000;
         #10;
         $stop;
     end

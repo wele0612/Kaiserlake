@@ -18,8 +18,13 @@ module cpu (
     input [15:0] p1_IM_rdata,
     output [8:0] p1_IM_maddr,
 
-    output IM_ena
+    output IM_ena,
+    output halted,
+    output [7:0] halt_addr
 );
+    //--------Just for Tor's autograder-------------
+    wire [8:0] PC;
+    assign PC=halted?({1'b0,halt_addr}+1'b1):9'b0;
     //-------Pipline 0 signal declare---------------
     wire [2:0] p0_num_Rm_1out,p0_num_Rn_1out,p0_num_Rd_1out;
     wire [15:0] p0_data_Rm_regout,p0_data_Rn_regout,p0_data_Rd_regout;
@@ -130,7 +135,9 @@ module cpu (
         .PC_next_out(PC_next),
         .IR0_invalid_out(IR0_invalid),
         .reset_S1(reset_S1_BGU_out),
-        .is_p0_b(is_p0_b)//the instruction following B is not valid.
+        .is_p0_b(is_p0_b),//the instruction following B is not valid.
+        .halted(halted),
+        .halt_addr(halt_addr)
     );
 
     data_forward p0_data_Rm_forward(
@@ -310,7 +317,7 @@ module cpu (
         .PC_in(p0_PC_in),
 
         .clk(clk),
-        .rst(rst||p0_do_delayed_B||p1_do_delayed_B),
+        .rst(rst||p0_do_delayed_B||p1_do_delayed_B||halted),
 
         //.rst_p(p0_rst_HCU|{3'b0,IR0_invalid||reset_S1_BGU_out}),//Not finished, waiting for BGU
         .rst_p(p0_rst_HCU|{3'b0,IR0_invalid||reset_S1_BGU_out}),//Not finished, waiting for BGU
@@ -398,7 +405,7 @@ module cpu (
         .PC_in(p1_PC_in),
 
         .clk(clk),
-        .rst(rst||p0_do_delayed_B||p1_do_delayed_B),
+        .rst(rst||p0_do_delayed_B||p1_do_delayed_B||halted),
 
         //.rst_p(p1_rst_HCU|{3'b0,reset_S1_BGU_out}),//Not finished, waiting for BGU
         .rst_p(p1_rst_HCU),

@@ -23,15 +23,25 @@ module BGU (
     output [8:0] PC_next_out,
     output IR0_invalid_out,
     output is_p0_b,
-    output reset_S1
+    output reset_S1,
+    output [7:0] halt_addr,
+    output halted
 );
     
 
     //wire [7:0] p0_imm,p1_imm;
 
     wire is_p1_b;
-    //assign p0_imm=p0_IR_in[7:0];
-    //assign p1_imm=p1_IR_in[7:0];
+    
+    //state machine for system halt.
+    wire p0_halt_now,p1_halt_now;
+    wire [7:0] p0_halt_addr,p1_halt_addr;
+    vDFF REG_BGU_halt(clk,rst,p0_halt_now||p1_halt_now||halted,halted);
+    //record HALT_addr when halt happens
+    vDFF_en #8 REG_BGU_p0_halt_PCaddr(clk,rst,p0_halt_now,p0_IR_in[7:0],p0_halt_addr);
+    vDFF_en #8 REG_BGU_p1_halt_PCaddr(clk,rst,p1_halt_now,p1_IR_in[7:0],p1_halt_addr);
+    assign halt_addr=p0_halt_addr|p1_halt_addr;
+    
     
     /* for following situation:
     0x04:   goto 0x11(or any odd address)
@@ -72,29 +82,31 @@ module BGU (
 
     wire [7:0] destination;
     wire [7:0] p0_dest,p1_dest;
-    assign p0_delayed_B_1in[15:8]=8'b001_00_000;
-    assign p1_delayed_B_1in[15:8]=8'b001_00_000;
-    //assign p0_dest=p0_imm+PC_prev_p1;//destination if p0 is B
+    //assign p0_delayed_B_1in[15:8]=8'b001_00_000;
+    //assign p1_delayed_B_1in[15:8]=8'b001_00_000;
     branch_decode p0_B_DECODE(
         .IR_in(p0_IR_in),
         .B_format(p0_do_delayed_B),
-        .prediction(1'b1),
+        .prediction(1'b0),
         .PCp1_for_this(PC_prev_p1),
 
         .destination_now(p0_dest),
         .destination_delayed(p0_delayed_B_1in[7:0]),
-        .cond_delayed(p0_delayed_cond_1in)
+        .instruction_delayed_head(p0_delayed_B_1in[15:8]),
+        .cond_delayed(p0_delayed_cond_1in),
+        .halt_now(p0_halt_now)
     );
-    //assign p1_dest=p1_imm+PC_prev_p2;//destination if p1 is B
     branch_decode p1_B_DECODE(
         .IR_in(p1_IR_in),
         .B_format(p1_do_delayed_B),
-        .prediction(1'b1),
+        .prediction(1'b0),
         .PCp1_for_this(PC_prev_p2),
 
         .destination_now(p1_dest),
         .destination_delayed(p1_delayed_B_1in[7:0]),
-        .cond_delayed(p1_delayed_cond_1in)
+        .instruction_delayed_head(p1_delayed_B_1in[15:8]),
+        .cond_delayed(p1_delayed_cond_1in),
+        .halt_now(p1_halt_now)
     );
     assign destination=is_p0_b?p0_dest:p1_dest;
 
@@ -104,7 +116,6 @@ module BGU (
     vDFF_en REG_next_IR0_invalid(clk,rst,fetch_next_in,PC_next[0],next_IR0_invalid);
     vDFF_en REG_IR0_invalid(clk,rst,fetch_next_in,next_IR0_invalid,next_IR0_invalid_regout);
     assign IR0_invalid_out=next_IR0_invalid_regout&&(~p0_do_delayed_B);
-    //vDFF_en REG_prev_nextPC();//WHY HERE??
     //in case the pipeline stalls, we nned to know the correct "next PC"\
     //just before it stall, and use it to update PC when stall is gone
 
@@ -114,6 +125,17 @@ module BGU (
     assign PC_next_out={PC_next[8:1],1'b0};//PC should be even
     
 endmodule
+/*Implementation of HALT
+    Default HALT: 111 000000000000
+    HALT_immediately 001 00 111 [PC_of_HALT+1]
+
+    Default HALT is ISA should wait untill all instructions before HALT are done,
+    then HALT. We also want to record the value of PC+1 of HALT.
+    This is very similar to the behavior of delayed Branch.
+    Therefore, we decode HALT as a delayed HALT_immediately(encoded as B with cond 111).
+
+    When HALT_immediately comes back to BGU, instruction fetch stops and halt signal is on.
+*/
 
 /*Process dealing with conditional branches
 0). We convert BLE, BLT, BEQ... To a pair of unconditional branches.
@@ -147,7 +169,9 @@ module branch_decode (
 
     output [7:0] destination_now,
     output [7:0] destination_delayed,
-    output [2:0] cond_delayed
+    output reg [7:0] instruction_delayed_head,
+    output [2:0] cond_delayed,
+    output reg halt_now
 );
     parameter NV=3'd0,
             AL=3'd1,
@@ -175,7 +199,10 @@ module branch_decode (
 
     //Decode branch
     always @(*) begin
-        cond_ifB=NV;//Defalut: branch will always happen
+        instruction_delayed_head=8'b001_00_000;
+        halt_now=1'b0;
+        take_B_now=1'b1;
+        cond_ifB=AL;//Defalut: branch will always happen
         cond_ifnB=NV;//Defalut: not branch will never happen
         if(opcode==3'b001&&cond==3'b000) begin
             //if unconditioned branch,use [A] branched for now.
@@ -203,6 +230,9 @@ module branch_decode (
                     cond_ifB=LE;
                     cond_ifnB=GT;
                 end
+                3'b111: begin//HALT_immdiately
+                    halt_now=1'b1;
+                end
                 default: begin
                     cond_ifB=AL;
                     cond_ifnB=NV;
@@ -214,6 +244,12 @@ module branch_decode (
             //We will calculate function destination in pipeline
             cond_ifnB=AL;
             take_B_now=1'b1;
+        end else if (opcode==3'b111) begin//HALT
+            cond_ifnB=AL;
+            cond_ifB=NV;
+            take_B_now=1'b1;
+            instruction_delayed_head=8'b001_00_111;
+            //ifnB is carrying PC+1, send ifnB as delayed.
         end
     end
 
