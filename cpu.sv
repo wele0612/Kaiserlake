@@ -84,8 +84,13 @@ module cpu (
 
     wire [15:0] p0_delayed_B,p1_delayed_B;
     wire p0_do_delayed_B,p1_do_delayed_B;
+    wire p0_do_delayed_B_3out,p1_do_delayed_B_3out;
+
+    wire S3_do_delayed_B,S4_do_delayed_B;
 
     assign IM_ena=fetch_next;
+    assign S3_do_delayed_B=p0_do_delayed_B_3out||p1_do_delayed_B_3out;
+    assign S4_do_delayed_B=p0_do_delayed_B||p1_do_delayed_B;
     //-----------------PC--------------------------
     wire [8:0] PC_curr,PC_next;
     //vDFF_en #9 REG_PC(clk,rst,fetch_next,PC_next,PC_curr);
@@ -346,6 +351,10 @@ module cpu (
         .delayed_cond_1in(p0_delayed_cond_1in),
         .delayed_B_4out(p0_delayed_B),
         .do_delayed_B_4out(p0_do_delayed_B),
+        .do_delayed_B_3out_4in(p0_do_delayed_B_3out),
+
+        .S3_do_delayed_B(S3_do_delayed_B),
+        .S4_do_delayed_B(S4_do_delayed_B),
 
         //laods
         .loads_1out(p0_loads_1out),
@@ -429,6 +438,10 @@ module cpu (
         .delayed_cond_1in(p1_delayed_cond_1in),
         .delayed_B_4out(p1_delayed_B),
         .do_delayed_B_4out(p1_do_delayed_B),
+        .do_delayed_B_3out_4in(p1_do_delayed_B_3out),
+
+        .S3_do_delayed_B(S3_do_delayed_B),
+        .S4_do_delayed_B(S4_do_delayed_B),
 
         //laods
         .loads_1out(p1_loads_1out),
@@ -507,6 +520,7 @@ endmodule
 module flag_indicate (
     input p0_loads,
     input p1_loads,
+    input S3S4_do_delayed_B,
     input rst,
     input clk,
 
@@ -516,14 +530,15 @@ module flag_indicate (
         if (rst) begin
             valid_pipeline<=1'b0;
         end else begin
-            
-            case ({p0_loads,p1_loads})
-                2'b00: valid_pipeline<=valid_pipeline; 
-                2'b01: valid_pipeline<=1'b1;
-                2'b10: valid_pipeline<=1'b0;
-                2'b11: valid_pipeline<=1'b1;
-                default: valid_pipeline<=valid_pipeline; 
-            endcase
+            if (~S3S4_do_delayed_B) begin
+                case ({p0_loads,p1_loads})
+                    2'b00: valid_pipeline<=valid_pipeline; 
+                    2'b01: valid_pipeline<=1'b1;
+                    2'b10: valid_pipeline<=1'b0;
+                    2'b11: valid_pipeline<=1'b1;
+                    default: valid_pipeline<=valid_pipeline; 
+                endcase
+            end
         end
     end
     

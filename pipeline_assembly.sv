@@ -48,7 +48,10 @@ module pipeline_assembly (
 
     input [15:0] delayed_B_1in,
     input [2:0] delayed_cond_1in,
+    input S3_do_delayed_B,
+    input S4_do_delayed_B,
     output [15:0] delayed_B_4out,
+    output do_delayed_B_3out_4in,
     output do_delayed_B_4out,
     //loads
     output loads_1out,
@@ -68,7 +71,6 @@ module pipeline_assembly (
     //----------for flow control---------
     wire [15:0] delayed_B_1out_2in,delayed_B_2out_3in,delayed_B_3out_4in;
     wire [2:0] delayed_cond_1out_2in,delayed_cond_2out_3in;
-    wire do_delayed_B_3out_4in;
 
     //-----------------------------------
 
@@ -159,6 +161,8 @@ module pipeline_assembly (
         .clk(clk),
 
         .result_out(result_3out_4in),
+        .S4_do_delayed_B(S4_do_delayed_B),
+        .S3_do_delayed_B(S3_do_delayed_B),
         .N_out(N_out),
         .V_out(V_out),
         .Z_out(Z_out),

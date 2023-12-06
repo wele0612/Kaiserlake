@@ -7,6 +7,8 @@ module pipeline_3_memwrt (
     input [5:0] inst_type_in,
     input [15:0] delayed_B_in,
     input [2:0] delayed_cond_in,
+    input S4_do_delayed_B,
+    input S3_do_delayed_B,
     input N_in,
     input V_in,
     input Z_in,//We may use flags from the other pipeline, so...
@@ -30,9 +32,11 @@ module pipeline_3_memwrt (
     output write_mem
 );
     wire [15:0] data_Rd;
-    assign write_mem=inst_type_out[1];//is opcode STR?
+    //If delayed branch happens next clk, this STR is invalid, so
+    //DO NOT WRITE TO MEM!
+    assign write_mem=inst_type_out[1]&&(~S4_do_delayed_B);//is opcode STR?
 
-    wire loads=control_in[8];
+    wire loads=control_in[8]&&(~rst);
     wire [2:0] delayed_cond;
     parameter NV=3'd0,
             AL=3'd1,
