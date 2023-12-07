@@ -486,6 +486,30 @@ module cpu (
 
         .clk(clk)
     );
+    /*
+    I just want to say that, making the cpen211 website automatcally log out, 
+    while making the autograder only work when you stay on the site, is 
+    anabsolute ingenuous design. Only the greatest mind who hasever graced 
+    humanity, is capable of such upmost amazing creation. I must applaud thevast
+     amount of pure intelligence it took for this glorious feat.
+                                                            —— Tong WU
+    */
+    //-------------------------
+    datapath_fake DP(
+        //write1 has higher priority, implemented inside regfile
+        .num_write0_in(p0_writenum_out),
+        .num_write1_in(p1_writenum_out),
+
+        .write0(p0_write_out),
+        .write1(p1_write_out),  
+
+        .data_write0_in(p0_writeback_data_out),
+        .data_write1_in(p1_writeback_data_out),
+
+        .clk(clk)
+    );
+
+    //-------------------------
 
     HCU pHCU(
         .p0S1_inst_type(p0S1_inst_type),
