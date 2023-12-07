@@ -3,6 +3,7 @@ module pipeline_assembly (
     input [7:0] PC_in,
 
     input clk,rst,
+    input power_rst,
     input [4:1] rst_p,//S0 need no reset
     input update_1in,
     input fetch_next_in,
@@ -191,6 +192,7 @@ module pipeline_assembly (
 
         .rst(rst|rst_p[4]),
         .clk(clk),
+        .power_rst(power_rst),
 
         .delayed_B_out(delayed_B_4out),
         .do_delayed_B_out(do_delayed_B_4out),

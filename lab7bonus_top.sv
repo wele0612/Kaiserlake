@@ -37,6 +37,7 @@ module lab7bonus_top (
   cpu CPU(
     .clk(clk),
     .rst(rst),
+    .power_rst(rst),
 
     .p0_DM_rdata(p0_DM_rdata),
     .p0_DM_maddr(p0_DM_maddr),

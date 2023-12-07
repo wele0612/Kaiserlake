@@ -2,6 +2,7 @@ module cpu (
 
     input clk,
     input rst,
+    input power_rst,
     
     input [15:0] p0_DM_rdata,
     output [8:0] p0_DM_maddr,
@@ -317,7 +318,8 @@ module cpu (
         .PC_in(p0_PC_in),
 
         .clk(clk),
-        .rst(rst||((p0_do_delayed_B||p1_do_delayed_B)&&fetch_next)||halted),
+        .power_rst(power_rst),
+        .rst(rst||(p0_do_delayed_B||p1_do_delayed_B)||halted),
 
         //.rst_p(p0_rst_HCU|{3'b0,IR0_invalid||reset_S1_BGU_out}),//Not finished, waiting for BGU
         .rst_p(p0_rst_HCU|{3'b0,IR0_invalid||reset_S1_BGU_out}),//Not finished, waiting for BGU
@@ -406,7 +408,8 @@ module cpu (
         .PC_in(p1_PC_in),
 
         .clk(clk),
-        .rst(rst||((p0_do_delayed_B||p1_do_delayed_B)&&fetch_next)||halted),
+        .power_rst(power_rst),
+        .rst(rst||(p0_do_delayed_B||p1_do_delayed_B)||halted),
 
         //.rst_p(p1_rst_HCU|{3'b0,reset_S1_BGU_out}),//Not finished, waiting for BGU
         .rst_p(p1_rst_HCU|{3'b0,reset_S1_BGU_out}),

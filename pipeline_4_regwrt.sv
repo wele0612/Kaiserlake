@@ -7,6 +7,7 @@ module pipeline_4_regwrt (
     input fetch_next_in,
 
     input clk,rst,
+    input power_rst,
 
     output [15:0] delayed_B_out,
     output do_delayed_B_out,
@@ -22,7 +23,7 @@ module pipeline_4_regwrt (
     vDFF #22 pREG_control (clk,rst,control_in,control);
 
     vDFF_ennr #16 pREG_delayed_B (clk,fetch_next_in||(~do_delayed_B),delayed_B_in,delayed_B_out);
-    vDFF_en pREG_do_delayed_B (clk,rst,fetch_next_in||(~do_delayed_B),do_delayed_B_in,do_delayed_B);
+    vDFF_en pREG_do_delayed_B (clk,power_rst||(rst&&(~do_delayed_B)),fetch_next_in||(~do_delayed_B),do_delayed_B_in,do_delayed_B);
     //do_delayed_B_out high will cause reset to entire pipeline, including here.
     //delayed branch instruction should wait here when fetch_next is low
     //And it can be mistakenly reset by itself while waiting... so we neet to fix rst. See cpu.sv
