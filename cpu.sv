@@ -116,7 +116,7 @@ module cpu (
         .fetch_next_in(fetch_next),
 
         .p0_IR_in(p0_IR_in),
-        .p1_IR_in(p1_IR_in),
+        .p1_IR_in(is_p0_b?16'b0:p1_IR_in),
 
         .p0_do_delayed_B(p0_do_delayed_B),
         .p1_do_delayed_B(p1_do_delayed_B),
