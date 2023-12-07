@@ -25,11 +25,15 @@ module pipeline_1_readreg (
 
     output wire loads
 );
+    wire [15:0] imm;
+    //For BL and BLX
+    assign imm_out=(inst_type[2])?{8'b0,delayed_B_out[7:0]}:imm;//To be added
+
     vDFF_en #22 pREG_control (clk,rst,update,control_in,control_out); 
     vDFF_ennr #3 pREG_num_Rm (clk,update,num_Rm_in,num_Rm_out); //instantiate "reg nums_a"
     vDFF_ennr #3 pREG_num_Rn (clk,update,num_Rn_in,num_Rn_out); //instantiate "reg nums_b"
     vDFF_ennr #3 pREG_num_Rd (clk,update,num_Rd_in,num_Rd_out); //注释没活儿可以不写
-    vDFF_ennr #16 pREG_imm (clk,update,imm_in,imm_out); //instantiate "imm"
+    vDFF_ennr #16 pREG_imm (clk,update,imm_in,imm); //instantiate "imm"
     vDFF_en #3 pREG_used_RmRnRd (clk,rst,update,used_RmRnRd_in,used_RmRnRd_out);
     vDFF_en #6 pREG_inst_type (clk,rst,update,inst_type_in,inst_type_out);
 

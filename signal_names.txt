@@ -34,5 +34,5 @@ Testbench命名：
     tb_(模块名)_(描述)
 
 inst_type
-| RSV | RSV | RSV | RSV | STR | LDR |
+| RSV | BLX |  BX |  BL | STR | LDR |
   [5]   [4]   [3]   [2]   [1]   [0]

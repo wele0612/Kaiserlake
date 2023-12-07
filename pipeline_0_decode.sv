@@ -18,7 +18,7 @@ module pipeline_0_decode (
     output reg [5:0] inst_type,
     /*
     inst_type
-    | RSV | RSV | RSV | RSV | STR | LDR |
+    | RSV | BLX |  BX |  BL | STR | LDR |
       [5]   [4]   [3]   [2]   [1]   [0]
     */
     
@@ -132,6 +132,22 @@ module pipeline_0_decode (
 
                 used_RmRnRd_out=3'b100;
                 inst_type[0]=1'b1;
+            end
+
+            3'b010:begin
+                case (ALUop)
+                    2'b11: begin
+                        asel=1'b1;
+                        bsel=1'b1;
+                        shift=2'b00;
+                        ALUop=2'b00; //final result will be imm8+0
+                        writenum=IR_in[10:8];//set writeback
+
+                        inst_type[2]=1'b1;
+                    end
+                    default: write=0;
+                endcase
+                
             end
 
             default: write=0;
