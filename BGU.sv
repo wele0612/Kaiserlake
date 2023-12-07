@@ -70,6 +70,13 @@ module BGU (
         end else begin
             if (fetch_next_in) begin
                 reset_S1_regout=(is_p0_b||is_p1_b);
+                if(p0_delayed_cond_1in==3'd1||p1_delayed_cond_1in==3'd1)begin
+                    reset_S1_regout=1'b0;
+                    //If p0 and p1 have delayed Branch with condition AL,
+                    //garbage instructions in S1 will be reset later by delayed branch.
+                    //Resettig them here may accidentally reset delayed branches when HCU
+                    //are holding it is S1.
+                end
             end
         end
     end
@@ -82,8 +89,6 @@ module BGU (
 
     wire [7:0] destination;
     wire [7:0] p0_dest,p1_dest;
-    //assign p0_delayed_B_1in[15:8]=8'b001_00_000;
-    //assign p1_delayed_B_1in[15:8]=8'b001_00_000;
     branch_decode p0_B_DECODE(
         .IR_in(p0_IR_in),
         .B_format(p0_do_delayed_B),
@@ -250,9 +255,9 @@ module branch_decode (
                     cond_ifnB=NV;
                 end
                 2'b00,2'b10: begin
-                    take_B_now=1'b0;
-                    cond_ifB=AL;
-                    cond_ifnB=NV;
+                    take_B_now=1'b1;
+                    cond_ifB=NV;
+                    cond_ifnB=AL;
                 end
                 default: begin
                     cond_ifB=AL;

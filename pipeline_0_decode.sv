@@ -159,6 +159,8 @@ module pipeline_0_decode (
                     end
                     2'b10: begin//BLX
                         used_RmRnRd_out=3'b001;
+                        asel=1'b1;
+                        bsel=1'b1;
                         write=1'b1;
                         num_Rd=IR_in[7:5];
                         shift=2'b00;
