@@ -84,8 +84,9 @@ module BGU (
     assign reset_S1=reset_S1_regout&&(~(p0_do_delayed_B||p1_do_delayed_B));
 
     //is_px_b indicates if px_IR_in is a valid branching insturction    
-    assign is_p0_b=((p0_IR_in[15:13]==3'b001||p0_IR_in[15:13]==3'b010)&&(~IR0_invalid_out))&&((~reset_S1));
-    assign is_p1_b=((p1_IR_in[15:13]==3'b001||p1_IR_in[15:13]==3'b010)&&(~reset_S1));
+    assign is_p0_b=((p0_IR_in[15:13]==3'b001||p0_IR_in[15:13]==3'b010||p0_IR_in[15:13]==3'b111)
+        &&(~IR0_invalid_out))&&((~reset_S1));
+    assign is_p1_b=((p1_IR_in[15:13]==3'b001||p1_IR_in[15:13]==3'b010||p1_IR_in[15:13]==3'b111)&&(~reset_S1));
 
     wire [7:0] destination;
     wire [7:0] p0_dest,p1_dest;
