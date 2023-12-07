@@ -24,7 +24,7 @@ module cpu (
 );
     //--------Just for Tor's autograder-------------
     wire [8:0] PC;
-    assign PC=halted?({1'b0,halt_addr}+1'b1):9'b0;
+    assign PC=halted?({1'b0,halt_addr}):9'b0;
     //-------Pipline 0 signal declare---------------
     wire [2:0] p0_num_Rm_1out,p0_num_Rn_1out,p0_num_Rd_1out;
     wire [15:0] p0_data_Rm_regout,p0_data_Rn_regout,p0_data_Rd_regout;

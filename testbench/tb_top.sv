@@ -56,22 +56,30 @@ module tb_top_wPC;
     wire [9:0] LEDR; 
     wire [6:0] HEX0, HEX1, HEX2, HEX3, HEX4, HEX5;
     reg CLOCK_50;
+    integer counter;
     lab7bonus_top DUT (KEY,SW,LEDR,HEX0,HEX1,HEX2,HEX3,HEX4,HEX5,CLOCK_50);
     initial begin
+        counter=0;
         forever begin
             CLOCK_50=1'b0;
             #2;
             CLOCK_50=1'b1;
             #2;
+            counter+=1;
         end
+    end
+    always @(posedge LEDR[8]) begin
+        $display("Halted. PC at %h.",DUT.CPU.PC);
+        $display("Total runtime %d periods.",counter);
+        #20;
+        $stop;
     end
     initial begin
         KEY[1]=1'b0;
         @(posedge CLOCK_50);
         #1;
         KEY[1]=1'b1;
-        #5000;
-        #10;
+        #100000;
         $stop;
     end
 endmodule
