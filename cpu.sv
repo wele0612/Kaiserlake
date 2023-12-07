@@ -401,14 +401,15 @@ module cpu (
 
     //----------------------pipeline1-------------------------
     pipeline_assembly p1(//Pipeline No.1
-        .IR_in(reset_S1_BGU_out||is_p0_b?16'b0:p1_IR_in),
+        //.IR_in(reset_S1_BGU_out||is_p0_b?16'b0:p1_IR_in),
+        .IR_in(is_p0_b?16'b0:p1_IR_in),
         .PC_in(p1_PC_in),
 
         .clk(clk),
         .rst(rst||p0_do_delayed_B||p1_do_delayed_B||halted),
 
         //.rst_p(p1_rst_HCU|{3'b0,reset_S1_BGU_out}),//Not finished, waiting for BGU
-        .rst_p(p1_rst_HCU),
+        .rst_p(p1_rst_HCU|{3'b0,reset_S1_BGU_out}),
         .update_1in(p1_update_1),
         .fetch_next_in(fetch_next),
 

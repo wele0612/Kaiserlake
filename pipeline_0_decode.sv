@@ -135,13 +135,15 @@ module pipeline_0_decode (
             end
 
             3'b010:begin
-                case (ALUop)
+                //REMEBER TO SET USED_rmrnrd!!!!!!
+                case (IR_in[12:11])
                     2'b11: begin
                         asel=1'b1;
                         bsel=1'b1;
                         shift=2'b00;
                         ALUop=2'b00; //final result will be imm8+0
                         writenum=IR_in[10:8];//set writeback
+                        write=1'b1;
 
                         inst_type[2]=1'b1;
                     end

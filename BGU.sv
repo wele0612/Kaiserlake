@@ -77,7 +77,7 @@ module BGU (
     assign reset_S1=reset_S1_regout&&(~(p0_do_delayed_B||p1_do_delayed_B));
 
     //is_px_b indicates if px_IR_in is a valid branching insturction    
-    assign is_p0_b=((p0_IR_in[15:13]==3'b001||p0_IR_in[15:13]==3'b010)&&(~IR0_invalid_out)&&(~reset_S1));
+    assign is_p0_b=((p0_IR_in[15:13]==3'b001||p0_IR_in[15:13]==3'b010)&&(~IR0_invalid_out))&&((~reset_S1));
     assign is_p1_b=((p1_IR_in[15:13]==3'b001||p1_IR_in[15:13]==3'b010)&&(~reset_S1));
 
     wire [7:0] destination;
@@ -239,11 +239,21 @@ module branch_decode (
                 end
             endcase
         end else if (opcode==3'b010) begin
-            //BL, BX and BLX needs to be delayed.
+            //BL, BX and BLX are using delayed pipeline
             //So that unbranched [B] carrying PC+1 can be sent into pipeline.
             //We will calculate function destination in pipeline
-            cond_ifnB=AL;
             take_B_now=1'b1;
+            case (IR_in[12:11])
+                2'b11: begin//BL
+                    take_B_now=1'b1;
+                    cond_ifB=AL;
+                    cond_ifnB=NV;
+                end
+                default: begin
+                    cond_ifB=AL;
+                    cond_ifnB=NV;
+                end
+            endcase
         end else if (opcode==3'b111) begin//HALT
             cond_ifnB=AL;
             cond_ifB=NV;
