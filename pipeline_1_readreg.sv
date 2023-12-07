@@ -27,7 +27,8 @@ module pipeline_1_readreg (
 );
     wire [15:0] imm;
     //For BL and BLX
-    assign imm_out=(inst_type_out[2])?{8'b0,delayed_B_out[7:0]}:imm;//To be added
+    assign imm_out=(inst_type_out[2]||inst_type_out[4])?{8'b0,delayed_B_out[7:0]}:imm;
+    //BL or BLX: replace imm with PC+1
 
     vDFF_en #22 pREG_control (clk,rst,update,control_in,control_out); 
     vDFF_ennr #3 pREG_num_Rm (clk,update,num_Rm_in,num_Rm_out); //instantiate "reg nums_a"

@@ -249,6 +249,11 @@ module branch_decode (
                     cond_ifB=AL;
                     cond_ifnB=NV;
                 end
+                2'b00,2'b10: begin
+                    take_B_now=1'b0;
+                    cond_ifB=AL;
+                    cond_ifnB=NV;
+                end
                 default: begin
                     cond_ifB=AL;
                     cond_ifnB=NV;

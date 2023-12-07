@@ -137,7 +137,7 @@ module pipeline_0_decode (
             3'b010:begin
                 //REMEBER TO SET USED_rmrnrd!!!!!!
                 case (IR_in[12:11])
-                    2'b11: begin
+                    2'b11: begin//BL
                         asel=1'b1;
                         bsel=1'b1;
                         shift=2'b00;
@@ -146,6 +146,26 @@ module pipeline_0_decode (
                         write=1'b1;
 
                         inst_type[2]=1'b1;
+                    end
+                    2'b00: begin//BX
+                        used_RmRnRd_out=3'b001;
+                        write=1'b0;
+                        num_Rd=IR_in[7:5];
+                        asel=1'b1;
+                        bsel=1'b1;
+
+                        inst_type[3]=1'b1;
+
+                    end
+                    2'b10: begin//BLX
+                        used_RmRnRd_out=3'b001;
+                        write=1'b1;
+                        num_Rd=IR_in[7:5];
+                        shift=2'b00;
+                        ALUop=2'b00; //final result will be imm8+0
+                        writenum=IR_in[10:8];//set writeback
+
+                        inst_type[4]=1'b1;
                     end
                     default: write=0;
                 endcase

@@ -36,6 +36,11 @@ module pipeline_3_memwrt (
     //DO NOT WRITE TO MEM!
     assign write_mem=inst_type_out[1]&&(~S4_do_delayed_B);//is opcode STR?
 
+    wire [15:0] delayed_B;
+    //BLX or BX use PC=Rd
+    assign delayed_B_out[15:8]=delayed_B[15:8];
+    assign delayed_B_out[7:0]=(inst_type_out[3]||inst_type_out[4])?data_Rd[7:0]:delayed_B[7:0];
+
     wire loads=control_in[8]&&(~rst);
     wire [2:0] delayed_cond;
     parameter NV=3'd0,
@@ -47,7 +52,7 @@ module pipeline_3_memwrt (
             GT=3'd6,
             GE=3'd7;
 
-    vDFF_nr #16 pREG_delayed_B (clk,delayed_B_in,delayed_B_out);
+    vDFF_nr #16 pREG_delayed_B (clk,delayed_B_in,delayed_B);
     vDFF #3 pREG_delayed_cond (clk,rst,delayed_cond_in,delayed_cond);
 
     always @(*) begin
