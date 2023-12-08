@@ -85,11 +85,13 @@ module BGU (
 
     //is_px_b indicates if px_IR_in is a valid branching insturction    
     assign is_p0_b=((p0_IR_in[15:13]==3'b001||p0_IR_in[15:13]==3'b010||p0_IR_in[15:13]==3'b111)
-        &&(~IR0_invalid_out))&&((~reset_S1));
+        &&(~IR0_invalid_out))&&((~reset_S1))&&(~p1_do_delayed_B);
     assign is_p1_b=((p1_IR_in[15:13]==3'b001||p1_IR_in[15:13]==3'b010||p1_IR_in[15:13]==3'b111)&&(~reset_S1));
 
     wire [7:0] destination;
     wire [7:0] p0_dest,p1_dest;
+
+    wire [2:0] p0_delayed_cond_decode_result;
     branch_decode p0_B_DECODE(
         .IR_in(p0_IR_in),
         .B_format(p0_do_delayed_B),
@@ -99,9 +101,13 @@ module BGU (
         .destination_now(p0_dest),
         .destination_delayed(p0_delayed_B_1in[7:0]),
         .instruction_delayed_head(p0_delayed_B_1in[15:8]),
-        .cond_delayed(p0_delayed_cond_1in),
+        .cond_delayed(p0_delayed_cond_decode_result),
         .halt_now(p0_halt_now)
     );
+    //If this is invalid, set condition to NV...
+    assign p0_delayed_cond_1in=is_p0_b?p0_delayed_cond_decode_result:3'b000;
+    
+    wire [2:0] p1_delayed_cond_decode_result;
     branch_decode p1_B_DECODE(
         .IR_in(p1_IR_in),
         .B_format(p1_do_delayed_B),
@@ -111,9 +117,11 @@ module BGU (
         .destination_now(p1_dest),
         .destination_delayed(p1_delayed_B_1in[7:0]),
         .instruction_delayed_head(p1_delayed_B_1in[15:8]),
-        .cond_delayed(p1_delayed_cond_1in),
+        .cond_delayed(p1_delayed_cond_decode_result),
         .halt_now(p1_halt_now)
     );
+    assign p1_delayed_cond_1in=is_p1_b?p1_delayed_cond_decode_result:3'b000;
+    
     assign destination=is_p0_b?p0_dest:p1_dest;
 
     wire [8:0] PC_acc_2,PC_next;
