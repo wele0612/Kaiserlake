@@ -81,7 +81,7 @@ module BGU (
         end
     end
     //When reset_S1 is 1, that means whatever instruction now is invalid
-    assign reset_S1=reset_S1_regout&&(~(p0_do_delayed_B||p1_do_delayed_B));
+    assign reset_S1=reset_S1_regout&&fetch_next_in&&(~(p0_do_delayed_B||p1_do_delayed_B));
 
     //is_px_b indicates if px_IR_in is a valid branching insturction    
     assign is_p0_b=((p0_IR_in[15:13]==3'b001||p0_IR_in[15:13]==3'b010||p0_IR_in[15:13]==3'b111)
