@@ -97,6 +97,7 @@ module BGU (
         .B_format(p0_do_delayed_B),
         .prediction(1'b0),
         .PCp1_for_this(PC_prev_p1),
+        .reset_S1(reset_S1_regout),
 
         .destination_now(p0_dest),
         .destination_delayed(p0_delayed_B_1in[7:0]),
@@ -113,6 +114,7 @@ module BGU (
         .B_format(p1_do_delayed_B),
         .prediction(1'b0),
         .PCp1_for_this(PC_prev_p2),
+        .reset_S1(reset_S1_regout),
 
         .destination_now(p1_dest),
         .destination_delayed(p1_delayed_B_1in[7:0]),
@@ -180,6 +182,7 @@ module branch_decode (
     input B_format,//1=B dest,0=B imm
     input prediction,
     input [7:0] PCp1_for_this,//PC plus 1 for this
+    input reset_S1,
 
     output [7:0] destination_now,
     output [7:0] destination_delayed,
@@ -245,7 +248,7 @@ module branch_decode (
                     cond_ifnB=GT;
                 end
                 3'b111: begin//HALT_immdiately
-                    halt_now=1'b1;
+                    halt_now=B_format&&(~reset_S1);//May overshoot to data/invalid
                 end
                 default: begin
                     cond_ifB=AL;
