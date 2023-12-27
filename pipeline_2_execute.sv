@@ -23,16 +23,16 @@ module pipeline_2_execute (
     output loads
 );
     wire [15:0] data_Rm,data_Rn,imm;
-    vDFF #22 pREG_control (clk,rst,control_in,control_out);
-    vDFF_nr #16 pREG_data_Rm (clk,data_Rm_in,data_Rm);
-    vDFF_nr #16 pREG_data_Rn (clk,data_Rn_in,data_Rn);
-    vDFF_nr #16 pREG_data_Rd (clk,data_Rd_in,data_Rd_out);
+    vDFF #(22) pREG_control (clk,rst,control_in,control_out);
+    vDFF_nr #(16) pREG_data_Rm (clk,data_Rm_in,data_Rm);
+    vDFF_nr #(16) pREG_data_Rn (clk,data_Rn_in,data_Rn);
+    vDFF_nr #(16) pREG_data_Rd (clk,data_Rd_in,data_Rd_out);
 
-    vDFF_nr #16 pREG_imm (clk,imm_in,imm);
-    vDFF #6 pREG_inst_type (clk,rst,inst_type_in,inst_type_out);
+    vDFF_nr #(16) pREG_imm (clk,imm_in,imm);
+    vDFF #(6) pREG_inst_type (clk,rst,inst_type_in,inst_type_out);
 
-    vDFF_nr #16 pREG_delayed_B (clk,delayed_B_in,delayed_B_out);
-    vDFF #3 pREG_delayed_cond (clk,rst,delayed_cond_in,delayed_cond_out);
+    vDFF_nr #(16) pREG_delayed_B (clk,delayed_B_in,delayed_B_out);
+    vDFF #(3) pREG_delayed_cond (clk,rst,delayed_cond_in,delayed_cond_out);
 
     wire [1:0] ALUop,shift;
     wire asel,bsel;

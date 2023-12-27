@@ -38,8 +38,8 @@ module BGU (
     wire [7:0] p0_halt_addr,p1_halt_addr;
     vDFF REG_BGU_halt(clk,rst,p0_halt_now||p1_halt_now||halted,halted);
     //record HALT_addr when halt happens
-    vDFF_en #8 REG_BGU_p0_halt_PCaddr(clk,rst,p0_halt_now,p0_IR_in[7:0],p0_halt_addr);
-    vDFF_en #8 REG_BGU_p1_halt_PCaddr(clk,rst,p1_halt_now,p1_IR_in[7:0],p1_halt_addr);
+    vDFF_en #(8) REG_BGU_p0_halt_PCaddr(clk,rst,p0_halt_now,p0_IR_in[7:0],p0_halt_addr);
+    vDFF_en #(8) REG_BGU_p1_halt_PCaddr(clk,rst,p1_halt_now,p1_IR_in[7:0],p1_halt_addr);
     assign halt_addr=p0_halt_addr|p1_halt_addr;
     
     
@@ -58,8 +58,8 @@ module BGU (
     */
 
     wire [7:0] PC_prev_p1,PC_prev_p2;
-    vDFF_en #8 REG_PC_PREV_p1(clk,rst,fetch_next_in,{PC[7:1],1'b1},PC_prev_p1);
-    vDFF_en #8 REG_PC_PREV_p2(clk,rst,fetch_next_in,PC[7:0]+2'd2,PC_prev_p2);
+    vDFF_en #(8) REG_PC_PREV_p1(clk,rst,fetch_next_in,{PC[7:1],1'b1},PC_prev_p1);
+    vDFF_en #(8) REG_PC_PREV_p2(clk,rst,fetch_next_in,PC[7:0]+2'd2,PC_prev_p2);
 
     reg reset_S1_regout;
     //B works at the clk after next, clean up garbage data in pipeline before that.

@@ -52,8 +52,8 @@ module pipeline_3_memwrt (
             GT=3'd6,
             GE=3'd7;
 
-    vDFF_nr #16 pREG_delayed_B (clk,delayed_B_in,delayed_B);
-    vDFF #3 pREG_delayed_cond (clk,rst,delayed_cond_in,delayed_cond);
+    vDFF_nr #(16) pREG_delayed_B (clk,delayed_B_in,delayed_B);
+    vDFF #(3) pREG_delayed_cond (clk,rst,delayed_cond_in,delayed_cond);
 
     always @(*) begin
         case (delayed_cond)
@@ -69,10 +69,10 @@ module pipeline_3_memwrt (
         endcase
     end
 
-    vDFF #22 pREG_control (clk,rst,control_in,control_out);
-    vDFF_nr #16 pREG_result (clk,result_in,result_out);
-    vDFF_nr #16 pREG_data_Rd (clk,data_Rd_in,data_Rd);
-    vDFF #6 pREG_inst_type (clk,rst,inst_type_in,inst_type_out);
+    vDFF #(22) pREG_control (clk,rst,control_in,control_out);
+    vDFF_nr #(16) pREG_result (clk,result_in,result_out);
+    vDFF_nr #(16) pREG_data_Rd (clk,data_Rd_in,data_Rd);
+    vDFF #(6) pREG_inst_type (clk,rst,inst_type_in,inst_type_out);
     assign wdata_mem=data_Rd;
     assign addr_mem=result_out[8:0];
 
