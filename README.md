@@ -1,6 +1,6 @@
 # KaiserLake
 ### A pipelined, superscalar processor with UBC CPEN211 Simple-Risc-Machine ISA
-### 使用UBC CPEN211 Simple-Risc-Machine指令集的超标量流水线CPU
+### 使用UBC CPEN211 Simple-Risc-Machine指令集的超标量流水线CPU（顺序双发射）
 
 ## Features
 
