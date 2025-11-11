@@ -4,7 +4,7 @@
 
 ## Features
 
-- Five-stage pipeline with comprehensive hazard control
+- Dual Five-stage pipeline (Similar to Intel Pentium u/v pipeline)
 - Synthesizable on Quartus with Cyclone-V FPGA
 - Build-in branch prediction support, default static branch predictor
 - Superscaler design, issue **two instructions** per cycle
