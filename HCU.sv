@@ -178,6 +178,7 @@ P0 |    I6    |           |    I4   |   I2     |
 P1 |    I7    |     I5   >|         |   I3     |
 
 I5 can now forward I4.
+If I4 is LDR, this transition may still become Case 2 in the next cycle.
 ==================================================
 Case 1: if instructions in S1 depend on LDRs in S3:
     -DO NOT fetch new instructions
@@ -205,5 +206,5 @@ Case 3: if I5 depends on I4, which is a LDR，
     or if I5 is STR, and I4 is LDR:
     -Take action in case 0.
 in next posedge clk:
-    -We may have no problem or we may be in case 1.
+    -We may have no problem or we may be in case 2.
 */
